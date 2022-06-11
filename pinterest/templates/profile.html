@@ -1,4 +1,76 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>{{ current_user.username }}</h1>
+
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle" src="{{ profile_pic }}">
+            <div class="media-body">
+                <h2 class="account-heading">{{ current_user.username }}</h2>
+                <p class="text-secondary">{{ current_user.email }}</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-grp">
+                    <legend class="border-bottom mb-4 mt-4">Edit Profile</legend>
+                    <div class="form-grp mt-3">
+                        {{ form.username.label(class="form-control-label")}}
+                        {% if form.username.errors %}
+                            {{ form.username(class="form-control form-control-lg is-invalid")}}
+                            <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor%}
+                            </div>
+                        {% else %}
+                            {{ form.username(class="form-control form-control-lg")}}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-grp mt-3">
+                        {{ form.email.label(class="form-control-label")}}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control form-control-lg is-invalid")}}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor%}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control form-control-lg")}}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-grp mt-3">
+                        {{ form.profile_pic.label() }}
+                        {{ form.profile_pic(class="form-control-label") }}
+                        {% if form.profile_pic.errors %}
+                            {% for error in form.profile_pic.errors %}
+                                <br> <span class="text-danger">{{error}}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="list-group">
+                        <br>
+                        <label>Your Interests:</label>  <br>
+                        {% for tag in tags %}
+                            {% if tag.id in selected_tags %}
+                                <label class="list-group-item">
+                                <input class="form-check-input me-1" type="checkbox" name="interests" checked="true" value="{{tag.id}}">{{tag.name}}</label>
+                            {% else %}
+                                <label class="list-group-item">
+                                <input class="form-check-input me-1" type="checkbox" name="interests" value="{{tag.id}}">{{tag.name}}</label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
+                <div class="form-grp mt-2">
+                    {{ form.submit(class="btn btn-outline-info")}}
+                </div>
+            </form>
+        </div>
+    </div>
+
 {% endblock content %}
