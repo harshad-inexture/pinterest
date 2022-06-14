@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-grp">
+                        <legend class="border-bottom mb-4 mt-4">New Post</legend>
+                        <div class="form-grp mt-3">
+                            {{ form.title.label(class="form-control-label")}}
+                            {% if form.title.errors %}
+                                {{ form.title(class="form-control form-control-lg is-invalid")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.title.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor%}
+                                </div>
+                            {% else %}
+                                {{ form.title(class="form-control form-control-lg")}}
+                            {% endif %}
+                        </div>
+                        <div class="form-grp mt-3">
+                            {{ form.content.label(class="form-control-label")}}
+                            {% if form.content.errors %}
+                                {{ form.content(class="form-control form-control-lg is-invalid")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.content.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor%}
+                                </div>
+                            {% else %}
+                                {{ form.content(class="form-control form-control-lg")}}
+                            {% endif %}
+                        </div>
+                        <div class="form-grp mt-3">
+                            {{ form.post_img.label() }} <br>
+                            {{ form.post_img(class="form-control-label") }}
+                            {% if form.post_img.errors %}
+                                {% for error in form.post_img.errors %}
+                                    <br> <span class="text-danger">{{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <label for="img_tag" class="mt-4">Pin Tags</label><br>
+                        <select name="img_tag" id="img_tag" class="btn btn-secondary dropdown-toggle">
+                            {% for tag in tags %}
+                                <option value="{{ tag.id }}">{{ tag.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </fieldset>
+                    <div class="form-group mt-4">
+                        {{ form.post(class="btn btn-outline-info") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

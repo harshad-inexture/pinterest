@@ -1,4 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Home Page</h1>
+    <br>
+    {% for pin in pins %}
+        <div class="container pin_container">
+            <div class="box">
+                <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
+                <a href="{{ url_for('selected_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock content %}

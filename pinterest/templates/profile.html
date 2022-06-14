@@ -1,76 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
-
-    <div class="content-section">
-        <div class="media">
-            <img class="rounded-circle" src="{{ profile_pic }}">
-            <div class="media-body">
-                <h2 class="account-heading">{{ current_user.username }}</h2>
-                <p class="text-secondary">{{ current_user.email }}</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <form method="POST" action="" enctype="multipart/form-data">
-                {{ form.hidden_tag() }}
-                <fieldset class="form-grp">
-                    <legend class="border-bottom mb-4 mt-4">Edit Profile</legend>
-                    <div class="form-grp mt-3">
-                        {{ form.username.label(class="form-control-label")}}
-                        {% if form.username.errors %}
-                            {{ form.username(class="form-control form-control-lg is-invalid")}}
-                            <div class="invalid-feedback">
-                            {% for error in form.username.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor%}
-                            </div>
-                        {% else %}
-                            {{ form.username(class="form-control form-control-lg")}}
-                        {% endif %}
+    <div class="container">
+        <div class="raw">
+            <div class="content-section col-md-8 mx-auto">
+                <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
+                    <img class="rounded-circle" src="{{ profile_pic }}">
+                    <div class="media-body">
+                        <h2 class="account-heading">{{ current_user.username }}</h2>
+                        <p class="text-secondary">{{ current_user.email }}</p>
                     </div>
+                </div>
+                <div class="content-section">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-grp">
+                        <legend class="border-bottom mb-4 mt-4">Profile Details</legend>
 
-                    <div class="form-grp mt-3">
-                        {{ form.email.label(class="form-control-label")}}
-                        {% if form.email.errors %}
-                            {{ form.email(class="form-control form-control-lg is-invalid")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.email.errors %}
+                        <div class="form-grp mt-3">
+                            {{ form.username.label(class="form-control-label")}}
+                            {% if form.username.errors %}
+                                {{ form.username(class="form-control form-control-lg is-invalid")}}
+                                <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
                                     <span>{{ error }}</span>
                                 {% endfor%}
-                            </div>
-                        {% else %}
-                            {{ form.email(class="form-control form-control-lg")}}
-                        {% endif %}
-                    </div>
-
-                    <div class="form-grp mt-3">
-                        {{ form.profile_pic.label() }}
-                        {{ form.profile_pic(class="form-control-label") }}
-                        {% if form.profile_pic.errors %}
-                            {% for error in form.profile_pic.errors %}
-                                <br> <span class="text-danger">{{error}}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-
-                    <div class="list-group">
-                        <br>
-                        <label>Your Interests:</label>  <br>
-                        {% for tag in tags %}
-                            {% if tag.id in selected_tags %}
-                                <label class="list-group-item">
-                                <input class="form-check-input me-1" type="checkbox" name="interests" checked="true" value="{{tag.id}}">{{tag.name}}</label>
+                                </div>
                             {% else %}
-                                <label class="list-group-item">
-                                <input class="form-check-input me-1" type="checkbox" name="interests" value="{{tag.id}}">{{tag.name}}</label>
+                                {{ form.username(class="form-control form-control-lg")}}
                             {% endif %}
-                        {% endfor %}
+                        </div>
+
+                        <div class="form-grp mt-3">
+                            {{ form.email.label(class="form-control-label")}}
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control form-control-lg is-invalid")}}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor%}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control form-control-lg")}}
+                            {% endif %}
+                        </div>
+
+                        <div class="form-grp mt-3">
+                            {{ form.profile_pic.label() }}
+                            {{ form.profile_pic(class="form-control-label") }}
+                            {% if form.profile_pic.errors %}
+                                {% for error in form.profile_pic.errors %}
+                                    <br> <span class="text-danger">{{error}}</span>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="list-group">
+                            <br>
+                            <label>Your Interests:</label>
+                            {% for tag in tags %}
+                                {% if tag.id in selected_tags %}
+                                    <label class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" name="interests" checked="true" value="{{tag.id}}">{{tag.name}}</label>
+                                {% else %}
+                                    <label class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" name="interests" value="{{tag.id}}">{{tag.name}}</label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                    <div class="form-grp mt-3 text-center">
+                        {{ form.submit(class="btn btn-outline-info")}}
                     </div>
-                </fieldset>
-                <div class="form-grp mt-2">
-                    {{ form.submit(class="btn btn-outline-info")}}
-                </div>
-            </form>
+                </form>
+            </div>
+<!--                User's pins------------------------------------------------------->
+                <h4 class="mt-5">Your Pins</h4><hr><br>
+                {% for pin in pins %}
+                    <div class="container">
+                        <div class="box">
+                            <div class="grid-item grid-item--height3">
+                                <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
+                                <a href="{{ url_for('update_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-
 {% endblock content %}

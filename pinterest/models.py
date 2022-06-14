@@ -22,13 +22,13 @@ class Pin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100),nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False,default=datetime.utcnow )
-    pin_pic = db.Column(db.String(500), nullable=False, default='default.jpg')
+    pin_pic = db.Column(db.String(50), nullable=False, default='default.jpg')
     content = db.Column(db.Text, nullable=False)
     tag = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):
-        return f"Pin('{self.title}','{self.date_posted}')"
+        return f"Pin('{self.pin_pic}','{self.title}','{self.date_posted}','{self.content}')"
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
