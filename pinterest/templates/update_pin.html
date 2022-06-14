@@ -75,7 +75,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <form action="{{ url_for('delete_pin',pin_id=pin.id)}}" method="post">
+                <form action="{{ url_for('pins.delete_pin',pin_id=pin.id)}}" method="post">
                     <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
             </div>

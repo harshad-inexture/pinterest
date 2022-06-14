@@ -13,7 +13,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-login_manager.login_view='login_page'
+login_manager.login_view='users.login_page'
 login_manager.login_message_category='info'
 
-from pinterest import routes
+from pinterest.users.routes import users
+from pinterest.pins.routes import pins
+from pinterest.main.routes import main
+
+app.register_blueprint(users)
+app.register_blueprint(pins)
+app.register_blueprint(main)

@@ -80,7 +80,7 @@
                         <div class="box">
                             <div class="grid-item grid-item--height3">
                                 <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                                <a href="{{ url_for('update_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
+                                <a href="{{ url_for('pins.update_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
                             </div>
                         </div>
                     </div>

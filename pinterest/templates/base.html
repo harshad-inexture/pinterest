@@ -19,14 +19,14 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{{ url_for('home_page') }}">Pinterest</a>
+                <a class="navbar-brand" href="{{ url_for('main.home_page') }}">Pinterest</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('home_page') }}">Home</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('main.home_page') }}">Home</a>
                     </li>
                 </ul>
             <form class="d-flex me-auto">
@@ -38,31 +38,31 @@
 
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('new_pin') }}">New Pin</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('pins.new_pin') }}">New Pin</a>
                     </li>
                 </ul>
 
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('profile_page') }}">Profile</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('users.profile_page') }}">Profile</a>
                     </li>
                 </ul>
 
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('users.logout') }}">Logout</a>
                     </li>
                 </ul>
 
             {% else %}
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('register_page') }}">Register</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('users.register_page') }}">Register</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{ url_for('login_page') }}">Login</a>
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('users.login_page') }}">Login</a>
                     </li>
                 </ul>
             {% endif %}

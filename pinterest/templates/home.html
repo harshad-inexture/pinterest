@@ -5,7 +5,7 @@
         <div class="container pin_container">
             <div class="box">
                 <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                <a href="{{ url_for('selected_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
+                <a href="{{ url_for('pins.selected_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
             </div>
         </div>
     {% endfor %}

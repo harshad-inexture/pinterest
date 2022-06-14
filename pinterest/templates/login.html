@@ -41,13 +41,13 @@
                     <div class="form-group mt-3">
                         {{ form.login(class="btn btn-outline-info") }}
                         <small class="text-muted">
-                            <a href="{{ url_for('home_page') }}">Forgot Password?</a>
+                            <a href="{{ url_for('main.home_page') }}">Forgot Password?</a>
                         </small>
                     </div>
                 </form>
                 <div class="border-top mt-4">
                     <small class="text-muted">
-                        Create New Account?... <a href=" {{ url_for('register_page')}} ">Registration</a>
+                        Create New Account?... <a href=" {{ url_for('users.register_page')}} ">Registration</a>
                     </small>
                 </div>
             </div>
