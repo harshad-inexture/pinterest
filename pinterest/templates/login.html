@@ -39,15 +39,15 @@
                         </div>
                     </fieldset>
                     <div class="form-group mt-3">
-                        {{ form.login(class="btn btn-outline-info") }}
+                        {{ form.login(class="btn btn-outline-danger") }}
                         <small class="text-muted">
-                            <a href="{{ url_for('main.home_page') }}">Forgot Password?</a>
+                            <a href="{{ url_for('users.reset_request') }}" class="text-danger">Forgot Password?</a>
                         </small>
                     </div>
                 </form>
                 <div class="border-top mt-4">
                     <small class="text-muted">
-                        Create New Account?... <a href=" {{ url_for('users.register_page')}} ">Registration</a>
+                        Create New Account?... <a href=" {{ url_for('users.register_page')}} " class="text-danger">Registration</a>
                     </small>
                 </div>
             </div>

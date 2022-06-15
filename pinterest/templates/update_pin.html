@@ -40,7 +40,7 @@
                     </div>
 
                     <label for="img_tag" class="mt-4">Pin Tags</label><br>
-                    <select name="img_tag" id="img_tag" class="btn btn-secondary dropdown-toggle">
+                    <select name="img_tag" id="img_tag" class="btn btn-lg dropdown-toggle border border-danger">
                         {% for tag in tags %}
                         {% if pin.tag==tag.id %}
                         <option value="{{ tag.id }}" selected="true">{{ tag.name }}</option>
@@ -51,7 +51,7 @@
                     </select>
                 </fieldset>
                 <div class="form-group mt-4">
-                    {{ form.update(class="btn btn-outline-info") }}
+                    {{ form.update(class="btn btn-outline-secondary") }}
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#DeletePin">
                         Delete

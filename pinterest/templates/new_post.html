@@ -44,15 +44,15 @@
                         </div>
 
                         <label for="img_tag" class="mt-4">Pin Tags</label><br>
-                        <select name="img_tag" id="img_tag" class="btn btn-secondary dropdown-toggle">
+                        <select name="img_tag" id="img_tag" class="btn btn-lg dropdown-toggle border border-danger">
                             {% for tag in tags %}
                                 <option value="{{ tag.id }}">{{ tag.name }}</option>
                             {% endfor %}
                         </select>
-
                     </fieldset>
+                    <br><hr>
                     <div class="form-group mt-4">
-                        {{ form.post(class="btn btn-outline-info") }}
+                        {{ form.post(class="btn btn-outline-danger") }}
                     </div>
                 </form>
             </div>

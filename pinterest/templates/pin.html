@@ -10,7 +10,7 @@
                 <h3>{{ pin.title }}</h3>
                 <h5>{{ pin.content }}</h5>
                 <p>{{ pin.date_posted.strftime('%Y-%m-%d') }}</p><span>Created by :-</span>
-                <a href="{{ url_for('users.profile_page') }}">{{ user.username }}</a>
+                <a href="{{ url_for('users.user_profile',username=user.username) }}" class="text-danger text-decoration-none">{{ user.username }}</a>
             </div>
         </div>
     </div>

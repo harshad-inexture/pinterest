@@ -70,13 +70,13 @@
 
                     </fieldset>
                     <div class="form-grp mt-4">
-                        {{ form.submit(class="btn btn-outline-info")}}
+                        {{ form.submit(class="btn btn-outline-danger")}}
                     </div>
                 </form>
             </div>
             <div class="border-top mt-3 col-md-8 mx-auto">
         <small class="text-muted">
-            Already Have An Account?... <a href=" {{ url_for('users.login_page')}} ">Log in</a>
+            Already Have An Account?... <a href=" {{ url_for('users.login_page')}} " class="text-danger">Log in</a>
         </small>
     </div>
         </div>

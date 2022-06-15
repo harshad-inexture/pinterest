@@ -14,11 +14,13 @@
         {% else %}
             <title>Pinterest</title>
         {% endif %}
+        <link rel="icon" type="image/x-icon" href="../static/web_static/logo.png">
     </head>
     <body>
-        <div class="container">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
+                <img src="{{ url_for('static',filename='web_static/' + 'logo.png') }}" alt="logo" width="50px" class="rounded-circle">
                 <a class="navbar-brand" href="{{ url_for('main.home_page') }}">Pinterest</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -31,7 +33,7 @@
                 </ul>
             <form class="d-flex me-auto">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+                <button class="btn btn-outline-danger" type="submit">Search</button>
             </form>
 
             {% if current_user.is_authenticated %}
@@ -71,21 +73,17 @@
         </div>
       </nav>
   </div>
-    <main role="main" class="container">
-        <div class="row">
-            <div class="col-md-12">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                {% endif %}
-                {% endwith %}
-                {% block content %}{% endblock %}
+    <main role="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
             </div>
-        </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
     </main>
 
     <!-- Optional JavaScript; choose one of the two! -->

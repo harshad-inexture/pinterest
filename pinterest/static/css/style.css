@@ -1,14 +1,14 @@
 .pin_container {
-    width: 2000px;
-    margin: 0px auto;
+    width: 450px;
+    float: left;
 }
 
 .box {
     width: 450px;
     padding: 5px;
     background-color: white;
-    float: left;
     margin-bottom: 10px;
+    break-inside: avoid;
 }
 
 .box img {
@@ -19,4 +19,6 @@
 /* CSS for profile pic */
 .profile_pic img{
     clip-path: circle();
+    width: 150px;
+    height: 150px;
 }

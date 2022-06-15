@@ -1,10 +1,10 @@
-from flask import Blueprint
-from flask import render_template, flash, redirect, url_for, request
-from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm
+from flask import Blueprint,session,render_template, flash, redirect, url_for, request
+from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.models import User, Pin, UserInterest, Tags
-from pinterest import db, bcrypt
+from pinterest import db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags,save_pic
+from flask_mail import Message
 
 users = Blueprint('users',__name__)
 
@@ -12,6 +12,7 @@ users = Blueprint('users',__name__)
 @users.route("/login", methods=['POST', 'GET'])
 def login_page():
     if current_user.is_authenticated:
+        session.permanent = True
         return redirect(url_for('main.home_page'))
     form = LoginForm()
 
@@ -104,3 +105,49 @@ def logout():
     logout_user()
     flash('Successfully logged out...!!!', 'success')
     return redirect(url_for('main.home_page'))
+
+# Show profile of users------------------------------------------
+@users.route("/profile/<string:username>")
+def user_profile(username):
+    user_pro = User.query.filter_by(username=username).first()
+    pins=Pin.query.filter_by(user_id=user_pro.id).all()
+    profile_pic = url_for('static', filename='profile_img/' + user_pro.profile_pic)
+    return render_template('user_profile.html', title=username, user=user_pro, profile_pic=profile_pic, pins=pins)
+
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset Request', sender='inexture@gmail.com', recipients=[user.email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('users.reset_token',token=token ,_external=True)}
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+
+@users.route("/reset_password", methods=['POST', 'GET'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home_page'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_reset_email(user)
+        flash('An email has been sent with instructions to reset password.','info')
+        return redirect(url_for('users.login_page'))
+    return render_template('reset_request.html',title='Reset Password', form=form)
+
+@users.route("/reset_password/<token>", methods=['POST', 'GET'])
+def reset_token(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home_page'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('That is an invalid or expired token','warning')
+        return redirect(url_for('users.reset_request'))
+    form= ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_pass
+        db.session.commit()
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('users.login_page'))
+    return render_template('reset_token.html',title='Reset Password', form=form)

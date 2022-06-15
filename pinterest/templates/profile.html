@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="form-grp mt-3">
-                            {{ form.profile_pic.label() }}
+                            {{ form.profile_pic.label() }} <br>
                             {{ form.profile_pic(class="form-control-label") }}
                             {% if form.profile_pic.errors %}
                                 {% for error in form.profile_pic.errors %}
@@ -69,7 +69,7 @@
                         </div>
                     </fieldset>
                     <div class="form-grp mt-3 text-center">
-                        {{ form.submit(class="btn btn-outline-info")}}
+                        {{ form.submit(class="btn btn-outline-danger")}}
                     </div>
                 </form>
             </div>
@@ -80,7 +80,7 @@
                         <div class="box">
                             <div class="grid-item grid-item--height3">
                                 <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                                <a href="{{ url_for('pins.update_pin',pin_id=pin.id) }}">{{ pin.title }}</a>
+                                <a href="{{ url_for('pins.update_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{ pin.title }}</a>
                             </div>
                         </div>
                     </div>
