@@ -11,12 +11,12 @@ app = Flask(__name__)
 # configs---------------------------------------------------------------------------------
 app.config.from_object(Config)
 db = SQLAlchemy(app)
-migrate = Migrate(app,db)
+migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
-login_manager.login_view='users.login_page'
-login_manager.login_message_category='info'
-mail =Mail(app)
+login_manager.login_view = 'users.login_page'
+login_manager.login_message_category = 'info'
+mail = Mail(app)
 
 from pinterest.users.routes import users
 from pinterest.pins.routes import pins

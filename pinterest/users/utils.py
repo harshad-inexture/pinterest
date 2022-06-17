@@ -1,7 +1,8 @@
 from pinterest import app
-import secrets, os
+import secrets
+import os
 from PIL import Image
-from wtforms.validators import ValidationError
+
 
 def save_pic(form_pic):
     random_hex = secrets.token_hex(8)
@@ -16,6 +17,7 @@ def save_pic(form_pic):
     i.save(picture_path)
     return profile_fn
 
+
 def selected_user_tags(user_tags):
     selected_tags = []
     for i in user_tags:
@@ -24,24 +26,24 @@ def selected_user_tags(user_tags):
 
 
 def password_check(passwd):
-    SpecialSym = ['$', '@', '#', '%']
+    specialsym = ['$', '@', '#', '%']
 
     if not any(char.isdigit() for char in passwd):
         msg = 'Password should have at least one numeral'
-        return True,msg
+        return True, msg
 
     elif not any(char.isupper() for char in passwd):
         msg = 'Password should have at least one uppercase letter'
-        return True,msg
+        return True, msg
 
     elif not any(char.islower() for char in passwd):
         msg = 'Password should have at least one lowercase letter'
-        return True,msg
+        return True, msg
 
-    elif not any(char in SpecialSym for char in passwd):
+    elif not any(char in specialsym for char in passwd):
         msg = 'Password should have at least one of the symbols $@#'
-        return True,msg
+        return True, msg
 
     else:
         msg = 'Password validate'
-        return False,msg
+        return False, msg

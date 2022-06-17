@@ -31,8 +31,7 @@ class User(db.Model, UserMixin):
             return None
         return User.query.get(user_id)
 
-
-def __repr__(self):
+    def __repr__(self):
         return f"User('{self.username}','{self.email}',{self.profile_pic},{self.id})"
 
 
@@ -44,6 +43,7 @@ class Pin(db.Model):
     content = db.Column(db.Text, nullable=False)
     tag = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_save_pins = db.relationship('SavePin', backref='save_pins', lazy=True)
 
     def __repr__(self):
         return f"Pin('{self.pin_pic}','{self.title}','{self.date_posted}','{self.content}')"
@@ -63,4 +63,13 @@ class UserInterest(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
 
     def __repr__(self):
-        return f"Tags('{self.user_id}','{self.tag_id}')"
+        return f"User Tags('{self.user_id}','{self.tag_id}')"
+
+
+class SavePin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Save Pins('{self.user_id}','{self.pin_id}')"
