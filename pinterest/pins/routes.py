@@ -57,6 +57,7 @@ pins.add_url_rule('/pin/new', view_func=NewPin.as_view('new_pin'))
 #     return render_template('pin.html', title=pin.title, pin=pin, user=user)
 
 class SelectedPin(View):
+    decorators = [login_required]
 
     def dispatch_request(self, pin_id):
         form = SearchForm()
@@ -210,7 +211,7 @@ class SavePinToBoard(View):
 
     def dispatch_request(self, board_id, pin_id):
         board = SavePinBoard.query.filter_by(board_id=board_id, pin_id=pin_id).first()
-        saved_pin = SavePin.query.filter_by(user_id=current_user.id,pin_id=pin_id).first()
+        saved_pin = SavePin.query.filter_by(user_id=current_user.id, pin_id=pin_id).first()
         if board is None:
             pin_save_to_board = SavePinBoard(board_id=board_id, pin_id=pin_id)
             if saved_pin is None:
