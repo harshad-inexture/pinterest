@@ -44,6 +44,7 @@ class Pin(db.Model):
     tag = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user_save_pins = db.relationship('SavePin', backref='save_pins', lazy=True)
+    user_save_pins_board = db.relationship('SavePinBoard', backref='save_pins_board', lazy=True)
 
     def __repr__(self):
         return f"Pin('{self.pin_pic}','{self.title}','{self.date_posted}','{self.content}')"
@@ -73,3 +74,21 @@ class SavePin(db.Model):
 
     def __repr__(self):
         return f"Save Pins('{self.user_id}','{self.pin_id}')"
+
+
+class Board(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Save Board('{self.id}','{self.user_id}','{self.name}')"
+
+
+class SavePinBoard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Save Pins To Board('{self.board_id}','{self.pin_id}')"

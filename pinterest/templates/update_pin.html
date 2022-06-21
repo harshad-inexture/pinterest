@@ -43,7 +43,7 @@
                     <select name="img_tag" id="img_tag" class="btn btn-lg dropdown-toggle border border-danger">
                         {% for tag in tags %}
                         {% if pin.tag==tag.id %}
-                        <option value="{{ tag.id }}" selected="true">{{ tag.name }}</option>
+                        <option value="{{ tag.id }}" selected >{{ tag.name }}</option>
                         {% else %}
                         <option value="{{ tag.id }}">{{ tag.name }}</option>
                         {% endif %}

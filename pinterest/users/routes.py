@@ -1,7 +1,7 @@
 from flask import Blueprint, session, render_template, flash, redirect, url_for, request
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
-from pinterest.models import User, Pin, UserInterest, Tags, SavePin
+from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board
 from pinterest import db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags, save_pic
@@ -97,8 +97,9 @@ def profile_page():
     user_tags = UserInterest.query.filter_by(user_id=current_user.id).all()
     selected_tags = selected_user_tags(user_tags)
     interests = request.form.getlist('interests')
-
     pins = Pin.query.filter_by(user_id=current_user.id).all()
+    boards = Board.query.filter_by(user_id=current_user.id).all()
+
     if form.validate_on_submit():
         if form.profile_pic.data:
             profile_name = save_pic(form.profile_pic.data)
@@ -130,7 +131,7 @@ def profile_page():
 
     profile_pic = url_for('static', filename='profile_img/' + current_user.profile_pic)
     return render_template('profile.html', title='profile', form=form, profile_pic=profile_pic, tags=tags,
-                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins)
+                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins,boards=boards)
 
 
 # route for log out---------------------------------------

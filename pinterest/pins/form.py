@@ -18,3 +18,10 @@ class UpdatePostForm(FlaskForm):
     content = TextAreaField('Description', validators=[DataRequired()])
     img_tag = StringField('Image Tag', validators=[DataRequired()])
     update = SubmitField('Update')
+
+
+# new board --------------------------------
+class NewBoardForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    create = SubmitField('Create')
+
