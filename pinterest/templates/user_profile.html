@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="container">
-        <div class="raw">
-            <div class="content-section col-md-8 mx-auto">
-                <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
-                    <img class="rounded-circle" src="{{ profile_pic }}">
-                    <div class="media-body">
-                        <h2 class="account-heading">{{ user.username }}</h2>
-                        <p class="text-secondary">{{ user.email }}</p>
-                    </div>
-                </div>
+<div class="container">
+    <div class="raw">
+        <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
+            <div class="center-block">
+                <img class="rounded-circle" src="{{ profile_pic }}">
+                <h2 class="account-heading text-center">{{ user.username }}</h2>
+                <p class="text-secondary text-center">{{ user.email }}</p>
             </div>
         </div>
-<!--                User's pins------------------------------------------------------->
-        <h4 class="mt-5">{{ user.username }} Pins</h4><hr><br>
-        {% for pin in pins %}
-            <div class="pin_container">
-                <div class="box">
-                    <div class="grid-item grid-item--height3">
-                        <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                        <p>{{ pin.title }}</p>
-                    </div>
-                </div>
+    </div>
+    <!--                User's pins------------------------------------------------------->
+    <h4 class="mt-5">{{ user.username }}'s Pins</h4>
+    <hr>
+    <br>
+    {% for pin in pins %}
+    <div class="pin_container">
+        <div class="box">
+            <div class="grid-item grid-item--height3">
+                <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
+                <a href="{{ url_for('pins.selected_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{ pin.title }}</a>
             </div>
-        {% endfor %}
-{% endblock content %}
+        </div>
+    </div>
+    {% endfor %}
+    {% endblock content %}

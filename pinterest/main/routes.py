@@ -1,19 +1,21 @@
 from flask import Blueprint, render_template
-from pinterest.models import Pin
+from pinterest.models import Pin, UserInterest
 from flask.views import View
 from pinterest.main.form import SearchForm
+from pinterest.main.utils import user_interest_tags
+from flask_login import current_user
 
 main = Blueprint('main', __name__)
 
 
-# @main.route("/", methods=['POST', 'GET'])
-# def home_page():
-#     pins = Pin.query.all()
-#     return render_template('home.html', pins=pins)
-
 class HomePage(View):
     def dispatch_request(self):
         pins = Pin.query.all()
+        if current_user.is_authenticated:
+            interested_tags = UserInterest.query.with_entities(UserInterest.tag_id).filter_by(
+                user_id=current_user.id).all()
+            user_interest_list = user_interest_tags(interested_tags)
+            pins = Pin.query.filter(Pin.tag.in_(user_interest_list)).all()
         return render_template('home.html', pins=pins)
 
 

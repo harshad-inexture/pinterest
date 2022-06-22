@@ -131,7 +131,7 @@ def profile_page():
 
     profile_pic = url_for('static', filename='profile_img/' + current_user.profile_pic)
     return render_template('profile.html', title='profile', form=form, profile_pic=profile_pic, tags=tags,
-                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins,boards=boards)
+                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins, boards=boards)
 
 
 # route for log out---------------------------------------
