@@ -2,79 +2,77 @@
 {% block content %}
 <div class="container">
     <div class="raw">
-        <div class="content-section col-md-8 mx-auto">
-            <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
+        <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
+            <div class="center-block">
                 <img class="rounded-circle" src="{{ profile_pic }}">
-                <div class="media-body">
-                    <h2 class="account-heading">{{ current_user.username }}</h2>
-                    <p class="text-secondary">{{ current_user.email }}</p>
-                </div>
+                <h2 class="account-heading text-center">{{ current_user.username }}</h2>
+                <p class="text-secondary text-center">{{ current_user.email }}</p>
             </div>
-            <div class="content-section">
-                <form method="POST" action="" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    <fieldset class="form-grp">
-                        <legend class="border-bottom mb-4 mt-4">Profile Details</legend>
+        </div>
+        <div class="content-section">
+            <form method="POST" action="" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-grp">
+                    <legend class="border-bottom mb-4 mt-4">Profile Details</legend>
 
-                        <div class="form-grp mt-3">
-                            {{ form.username.label(class="form-control-label")}}
-                            {% if form.username.errors %}
-                            {{ form.username(class="form-control form-control-lg is-invalid")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.username.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor%}
-                            </div>
-                            {% else %}
-                            {{ form.username(class="form-control form-control-lg")}}
-                            {% endif %}
+                    <div class="form-grp mt-3">
+                        {{ form.username.label(class="form-control-label")}}
+                        {% if form.username.errors %}
+                        {{ form.username(class="form-control form-control-lg is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor%}
                         </div>
-
-                        <div class="form-grp mt-3">
-                            {{ form.email.label(class="form-control-label")}}
-                            {% if form.email.errors %}
-                            {{ form.email(class="form-control form-control-lg is-invalid")}}
-                            <div class="invalid-feedback">
-                                {% for error in form.email.errors %}
-                                <span>{{ error }}</span>
-                                {% endfor%}
-                            </div>
-                            {% else %}
-                            {{ form.email(class="form-control form-control-lg")}}
-                            {% endif %}
-                        </div>
-
-                        <div class="form-grp mt-3">
-                            {{ form.profile_pic.label() }} <br>
-                            {{ form.profile_pic(class="form-control-label") }}
-                            {% if form.profile_pic.errors %}
-                            {% for error in form.profile_pic.errors %}
-                            <br> <span class="text-danger">{{error}}</span>
-                            {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <div class="list-group">
-                            <br>
-                            <label>Your Interests:</label>
-                            {% for tag in tags %}
-                            {% if tag.id in selected_tags %}
-                            <label class="list-group-item">
-                                <input class="form-check-input me-1" type="checkbox" name="interests" checked
-                                       value="{{tag.id}}">{{tag.name}}</label>
-                            {% else %}
-                            <label class="list-group-item">
-                                <input class="form-check-input me-1" type="checkbox" name="interests"
-                                       value="{{tag.id}}">{{tag.name}}</label>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                    <div class="form-grp mt-3 text-center">
-                        {{ form.submit(class="btn btn-outline-danger")}}
+                        {% else %}
+                        {{ form.username(class="form-control form-control-lg")}}
+                        {% endif %}
                     </div>
-                </form>
-            </div>
+
+                    <div class="form-grp mt-3">
+                        {{ form.email.label(class="form-control-label")}}
+                        {% if form.email.errors %}
+                        {{ form.email(class="form-control form-control-lg is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor%}
+                        </div>
+                        {% else %}
+                        {{ form.email(class="form-control form-control-lg")}}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-grp mt-3">
+                        {{ form.profile_pic.label() }} <br>
+                        {{ form.profile_pic(class="form-control-label") }}
+                        {% if form.profile_pic.errors %}
+                        {% for error in form.profile_pic.errors %}
+                        <br> <span class="text-danger">{{error}}</span>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="list-group">
+                        <br>
+                        <label>Your Interests:</label>
+                        {% for tag in tags %}
+                        {% if tag.id in selected_tags %}
+                        <label class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" name="interests" checked
+                                   value="{{tag.id}}">{{tag.name}}</label>
+                        {% else %}
+                        <label class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" name="interests"
+                                   value="{{tag.id}}">{{tag.name}}</label>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </fieldset>
+                <div class="form-grp mt-3 text-center">
+                    {{ form.submit(class="btn btn-outline-danger")}}
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -103,8 +101,10 @@
         {% for board in boards %}
         <div class="pin_container">
             <div class="box">
-                <div class="grid-item grid-item--height3">
-                    <a class="text-danger text-decoration-none" href="{{ url_for('pins.board_info',board_id=board.id) }}"><h2>{{ board.name }}</h2></a>
+                <div class="bg-light rounded border border-danger m-3">
+                    <a class="text-danger text-decoration-none p-1"
+                       href="{{ url_for('pins.board_info',board_id=board.id) }}"><h2 class="text-center">{{ board.name
+                        }}</h2></a>
                 </div>
             </div>
         </div>
