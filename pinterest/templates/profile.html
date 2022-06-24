@@ -135,11 +135,11 @@
         {% for pin in pins %}
         <div class="pin_container">
             <div class="box">
-                <div class="grid-item grid-item--height3">
-                    <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                    <a href="{{ url_for('pins.update_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{
-                        pin.title }}</a>
-                </div>
+
+                <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
+                <a href="{{ url_for('pins.update_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{
+                    pin.title }}</a>
+
             </div>
         </div>
         {% endfor %}
@@ -152,13 +152,11 @@
         {% for pin in user_save_pins %}
         <div class="pin_container">
             <div class="box">
-                <div class="grid-item grid-item--height3">
-                    <img src="{{ url_for('static',filename='pin_img/' + pin.save_pins.pin_pic) }} ">
-                    <a href="{{ url_for('pins.selected_pin',pin_id=pin.save_pins.id) }}"
-                       class="text-danger text-decoration-none">{{ pin.save_pins.title }}</a>
-                    <a href="{{ url_for('pins.unsave_pin',pin_id=pin.save_pins.id) }}"
-                       class="text-secondary text-decoration-none float-end">Remove</a>
-                </div>
+                <img src="{{ url_for('static',filename='pin_img/' + pin.save_pins.pin_pic) }} ">
+                <a href="{{ url_for('pins.selected_pin',pin_id=pin.save_pins.id) }}"
+                   class="text-danger text-decoration-none">{{ pin.save_pins.title }}</a>
+                <a href="{{ url_for('pins.unsave_pin',pin_id=pin.save_pins.id) }}"
+                   class="text-secondary text-decoration-none float-end">Remove</a>
             </div>
         </div>
         {% endfor %}

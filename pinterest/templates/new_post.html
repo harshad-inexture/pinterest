@@ -43,12 +43,14 @@
                             {% endif %}
                         </div>
 
-                        <label for="img_tag" class="mt-4">Pin Tags</label><br>
-                        <select name="img_tag" id="img_tag" class="btn btn-lg dropdown-toggle border border-danger">
+                        <div class="list-group mt-4">
+                            <label>Pin Tags:</label>
                             {% for tag in tags %}
-                                <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                <label class="list-group-item">
+                                <input class="form-check-input me-1" type="checkbox" name="img_tag" value="{{tag.id}}">{{tag.name}}</label>
                             {% endfor %}
-                        </select>
+                        </div>
+
                     </fieldset>
                     <br><hr>
                     <div class="form-group mt-4">

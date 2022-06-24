@@ -1,12 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <div class="raw">
-        <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
+    <div class="row">
+        <div class="profile_pic d-flex justify-content-center mt-5">
             <div class="center-block">
                 <img class="rounded-circle" src="{{ profile_pic }}">
                 <h2 class="account-heading text-center">{{ user.username }}</h2>
                 <p class="text-secondary text-center">{{ user.email }}</p>
+                <p class="text-secondary text-center">{{ followers }} Followers {{ following }} Following</p>
+                <div class="text-center">
+                    {% if current_user.id in user.follow|map(attribute="user_id")|list %}
+                    <a class="btn btn-outline-danger btn-lg" href="{{ url_for('users.follow_user', user_id=user.id) }}">
+                        <p>Unfollow</p>
+                    </a>
+                    {% else %}
+                    <a class="btn btn-outline-danger btn-lg" href="{{ url_for('users.follow_user', user_id=user.id) }}">
+                        <p>Follow</p>
+                    </a>
+                    {% endif %}
+                </div>
+                <p></p>
             </div>
         </div>
     </div>
@@ -19,7 +32,8 @@
         <div class="box">
             <div class="grid-item grid-item--height3">
                 <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-                <a href="{{ url_for('pins.selected_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{ pin.title }}</a>
+                <a href="{{ url_for('pins.selected_pin',pin_id=pin.id) }}" class="text-danger text-decoration-none">{{
+                    pin.title }}</a>
             </div>
         </div>
     </div>

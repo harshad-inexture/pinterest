@@ -17,6 +17,7 @@
     object-fit: contain;
     border-radius: 15px;
 }
+
 /* CSS for profile pic */
 .profile_pic img{
     clip-path: circle();

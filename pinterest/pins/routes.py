@@ -1,31 +1,14 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, abort
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, jsonify
 from flask.views import View
 from flask_login import current_user, login_required
 
 from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
-from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard
+from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags
 from pinterest import db
 from pinterest.pins.utils import save_pin_img
 
 pins = Blueprint('pins', __name__)
-
-
-# @pins.route("/pin/new", methods=['POST', 'GET'])
-# @login_required
-# def new_pin():
-#     form = NewPostForm()
-#     tags = Tags.query.all()
-#     if form.validate_on_submit():
-#         if form.post_img.data:
-#             pin_pic = save_pin_img(form.post_img.data)
-#             pin = Pin(title=form.title.data, pin_pic=pin_pic, content=form.content.data, tag=form.img_tag.data,
-#                       user_id=current_user.id)
-#             db.session.add(pin)
-#             db.session.commit()
-#             flash('Your post has been created...!!!', 'success')
-#             return redirect(url_for('main.home_page'))
-#     return render_template('new_post.html', title='New Post', form=form, tags=tags)
 
 
 class NewPin(View):
@@ -38,10 +21,18 @@ class NewPin(View):
         if form.validate_on_submit():
             if form.post_img.data:
                 pin_pic = save_pin_img(form.post_img.data)
-                pin = Pin(title=form.title.data, pin_pic=pin_pic, content=form.content.data, tag=form.img_tag.data,
-                          user_id=current_user.id)
+                pin = Pin(title=form.title.data, pin_pic=pin_pic, content=form.content.data, user_id=current_user.id)
                 db.session.add(pin)
                 db.session.commit()
+
+                pin_tags = request.form.getlist('img_tag')
+
+                for tag in pin_tags:
+                    pin_tag = PinTags(pin_id=pin.id, tag_id=tag)
+                    db.session.add(pin_tag)
+
+                db.session.commit()
+
                 flash('Your post has been created...!!!', 'success')
                 return redirect(url_for('main.home_page'))
         return render_template('new_post.html', title='New Post', form=form, tags=tags)
@@ -49,12 +40,6 @@ class NewPin(View):
 
 pins.add_url_rule('/pin/new', view_func=NewPin.as_view('new_pin'))
 
-
-# @pins.route("/pin/<int:pin_id>")
-# def selected_pin(pin_id):
-#     pin = Pin.query.get_or_404(pin_id)
-#     user = User.query.get_or_404(pin.user_id)
-#     return render_template('pin.html', title=pin.title, pin=pin, user=user)
 
 class SelectedPin(View):
     decorators = [login_required]
@@ -70,27 +55,12 @@ class SelectedPin(View):
 pins.add_url_rule('/pin/<int:pin_id>', view_func=SelectedPin.as_view('selected_pin'))
 
 
-# @pins.route("/pin/<int:pin_id>/update", methods=['POST', 'GET'])
-# @login_required
-# def update_pin(pin_id):
-#     pin = Pin.query.get_or_404(pin_id)
-#     user = User.query.get_or_404(pin.user_id)
-#     form = UpdatePostForm()
-#     tags = Tags.query.all()
-#     if pin.author != current_user:
-#         abort(403)
-#     if form.validate_on_submit():
-#         pin.title = form.title.data
-#         pin.content = form.content.data
-#         pin.tag = form.img_tag.data
-#         db.session.commit()
-#         flash('Your pin has been updated.!', 'success')
-#         return redirect(url_for('pins.update_pin', pin_id=pin.id))
-#     if request.method == 'GET':
-#         form.title.data = pin.title
-#         form.content.data = pin.content
-#
-#     return render_template('update_pin.html', title=pin.title, pin=pin, user=user, form=form, tags=tags)
+def get_selected_tags(pin_tags):
+    selected_tags = []
+    for tag in pin_tags:
+        selected_tags.append(tag.tag_id)
+    return selected_tags
+
 
 class UpdatePin(View):
     methods = ['GET', 'POST']
@@ -99,6 +69,8 @@ class UpdatePin(View):
     def dispatch_request(self, pin_id):
         pin = Pin.query.get_or_404(pin_id)
         user = User.query.get_or_404(pin.user_id)
+        pin_tags = PinTags.query.filter_by(pin_id=pin_id).all()
+        selected_pin_tag = get_selected_tags(pin_tags)
         form = UpdatePostForm()
         tags = Tags.query.all()
         if pin.author != current_user:
@@ -106,7 +78,21 @@ class UpdatePin(View):
         if form.validate_on_submit():
             pin.title = form.title.data
             pin.content = form.content.data
-            pin.tag = form.img_tag.data
+            new_tags = request.form.getlist('img_tag')
+
+            if selected_pin_tag != new_tags:
+                # for delete pin tag--------------------
+                for selected_tag in selected_pin_tag:
+                    if selected_tag not in new_tags:
+                        PinTags.query.filter_by(tag_id=selected_tag, pin_id=pin_id).delete()
+                        db.session.commit()
+
+                # for update add new pin tag------------------------
+                for interest_id in new_tags:
+                    if interest_id not in selected_pin_tag:
+                        pin_new_tag = PinTags(pin_id=pin_id, tag_id=interest_id)
+                        db.session.add(pin_new_tag)
+
             db.session.commit()
             flash('Your pin has been updated.!', 'success')
             return redirect(url_for('pins.update_pin', pin_id=pin.id))
@@ -114,22 +100,12 @@ class UpdatePin(View):
             form.title.data = pin.title
             form.content.data = pin.content
 
-        return render_template('update_pin.html', title=pin.title, pin=pin, user=user, form=form, tags=tags)
+        return render_template('update_pin.html', title=pin.title, pin=pin, user=user, form=form,
+                               selected_pin_tag=selected_pin_tag, tags=tags)
 
 
 pins.add_url_rule("/pin/<int:pin_id>/update", view_func=UpdatePin.as_view('update_pin'))
 
-
-# @pins.route("/pin/<int:pin_id>/delete", methods=['POST'])
-# @login_required
-# def delete_pin(pin_id):
-#     pin = Pin.query.get_or_404(pin_id)
-#     if pin.author != current_user:
-#         abort(403)
-#     db.session.delete(pin)
-#     db.session.commit()
-#     flash('Your pin has been deleted.!', 'success')
-#     return redirect(url_for('users.profile_page'))
 
 class DeletePin(View):
     methods = ['POST']
@@ -277,3 +253,27 @@ class DeleteBoard(View):
 
 
 pins.add_url_rule('/board/<int:board_id>/delete', view_func=DeleteBoard.as_view('delete_board'))
+
+
+# Like pin-----------------------------------------------------------------
+class LikePin(View):
+    methods = ['POST', 'GET']
+    decorators = [login_required]
+
+    def dispatch_request(self, pin_id):
+        pin = Pin.query.filter_by(id=pin_id).first()
+        like = Like.query.filter_by(user_id=current_user.id, pin_id=pin_id).first()
+
+        if not pin:
+            flash('Pin does not exist', 'success')
+        elif like:
+            db.session.delete(like)
+            db.session.commit()
+        else:
+            like = Like(user_id=current_user.id, pin_id=pin_id)
+            db.session.add(like)
+            db.session.commit()
+        return redirect(url_for('pins.selected_pin', pin_id=pin_id))
+
+
+pins.add_url_rule('/pin/like/<int:pin_id>', view_func=LikePin.as_view('like_pin'))

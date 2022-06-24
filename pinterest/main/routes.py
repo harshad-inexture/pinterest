@@ -11,11 +11,11 @@ main = Blueprint('main', __name__)
 class HomePage(View):
     def dispatch_request(self):
         pins = Pin.query.all()
-        if current_user.is_authenticated:
-            interested_tags = UserInterest.query.with_entities(UserInterest.tag_id).filter_by(
-                user_id=current_user.id).all()
-            user_interest_list = user_interest_tags(interested_tags)
-            pins = Pin.query.filter(Pin.tag.in_(user_interest_list)).all()
+        # if current_user.is_authenticated:
+        #     interested_tags = UserInterest.query.with_entities(UserInterest.tag_id).filter_by(
+        #         user_id=current_user.id).all()
+        #     user_interest_list = user_interest_tags(interested_tags)
+        #     pins = Pin.query.filter(Pin.tag.in_(user_interest_list)).all()
         return render_template('home.html', pins=pins)
 
 

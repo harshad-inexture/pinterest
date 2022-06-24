@@ -17,6 +17,8 @@ class User(db.Model, UserMixin):
     profile_pic = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
     pins = db.relationship('Pin', backref='author', lazy=True)
+    like = db.relationship('Like', backref='user', lazy=True)
+    follow = db.relationship('Follow', backref='user', lazy=True)
 
     def get_reset_token(self, expires_sec=900):
         s = Serializer(app.secret_key, expires_sec)
@@ -41,13 +43,24 @@ class Pin(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     pin_pic = db.Column(db.String(50), nullable=False, default='default.jpg')
     content = db.Column(db.Text, nullable=False)
-    tag = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user_save_pins = db.relationship('SavePin', backref='save_pins', lazy=True)
-    user_save_pins_board = db.relationship('SavePinBoard', backref='save_pins_board', lazy=True)
+
+    user_save_pins = db.relationship('SavePin', backref='save_pins',  cascade="all,delete")
+    user_save_pins_board = db.relationship('SavePinBoard', backref='save_pins_board',  cascade="all,delete")
+    like = db.relationship('Like', backref='pin',  cascade="all,delete")
+    pin_tags = db.relationship('PinTags', backref='pin', cascade="all,delete")
 
     def __repr__(self):
         return f"Pin('{self.pin_pic}','{self.title}','{self.date_posted}','{self.content}')"
+
+
+class PinTags(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+
+    def __repr__(self):
+        return f"PinTags('{self.pin_id}','{self.tag_id}')"
 
 
 class Tags(db.Model):
@@ -70,7 +83,7 @@ class UserInterest(db.Model):
 class SavePin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id'), nullable=False)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"Save Pins('{self.user_id}','{self.pin_id}')"
@@ -88,7 +101,19 @@ class Board(db.Model):
 class SavePinBoard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
-    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id'), nullable=False)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"Save Pins To Board('{self.board_id}','{self.pin_id}')"
+
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
+
+
+class Follow(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

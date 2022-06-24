@@ -39,16 +39,22 @@
                         {% endif %}
                     </div>
 
-                    <label for="img_tag" class="mt-4">Pin Tags</label><br>
-                    <select name="img_tag" id="img_tag" class="btn btn-lg dropdown-toggle border border-danger">
+                    <div class="list-group">
+                        <br>
+                        <label>Pin Tags:</label>
                         {% for tag in tags %}
-                        {% if pin.tag==tag.id %}
-                        <option value="{{ tag.id }}" selected >{{ tag.name }}</option>
+                        {% if tag.id in selected_pin_tag %}
+                        <label class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" name="img_tag" checked
+                                   value="{{tag.id}}">{{tag.name}}</label>
                         {% else %}
-                        <option value="{{ tag.id }}">{{ tag.name }}</option>
+                        <label class="list-group-item">
+                            <input class="form-check-input me-1" type="checkbox" name="img_tag"
+                                   value="{{tag.id}}">{{tag.name}}</label>
                         {% endif %}
                         {% endfor %}
-                    </select>
+                    </div>
+
                 </fieldset>
                 <div class="form-group mt-4">
                     {{ form.update(class="btn btn-outline-secondary") }}

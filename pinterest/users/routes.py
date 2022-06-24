@@ -1,7 +1,7 @@
 from flask import Blueprint, session, render_template, flash, redirect, url_for, request
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
-from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board
+from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow
 from pinterest import db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags, save_pic
@@ -10,29 +10,6 @@ from flask.views import View
 
 users = Blueprint('users', __name__)
 
-
-# route for login-------------------------------------------------
-# @users.route("/login", methods=['POST', 'GET'])
-# def login_page():
-#     if current_user.is_authenticated:
-#         session.permanent = True
-#         return redirect(url_for('main.home_page'))
-#     form = LoginForm()
-#
-#     if form.validate_on_submit():
-#         user = User.query.filter_by(email=form.email.data).first()
-#         if user and bcrypt.check_password_hash(user.password, form.password.data):
-#             login_user(user, remember=form.remember.data)
-#             next_page = request.args.get('next')
-#             flash('Successfully logged in...!!!', 'success')
-#
-#             if next_page:
-#                 return redirect(next_page)
-#             else:
-#                 return redirect(url_for('main.home_page'))
-#         else:
-#             flash('Login unsuccessfully. Please check email and password', 'danger')
-#     return render_template('login.html', title='Login', form=form)
 
 class LoginPage(View):
     methods = ['GET', 'POST']
@@ -147,10 +124,11 @@ def logout():
 def user_profile(username):
     form = SearchForm()
     user_pro = User.query.filter_by(username=username).first()
+    followers, following = count_follower(user_pro.id)
     pins = Pin.query.filter_by(user_id=user_pro.id).all()
     profile_pic = url_for('static', filename='profile_img/' + user_pro.profile_pic)
     return render_template('user_profile.html', title=username, user=user_pro, profile_pic=profile_pic, pins=pins,
-                           form=form)
+                           form=form, followers=followers, following=following)
 
 
 def send_reset_email(user):
@@ -192,3 +170,33 @@ def reset_token(token):
         flash('Your password has been updated!', 'success')
         return redirect(url_for('users.login_page'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+def count_follower(user_id):
+    followers = Follow.query.filter_by(user_id=user_id).count()
+    following = Follow.query.filter_by(follower_id=user_id).count()
+    return followers, following
+
+
+# follow user-----------------------------------------------------------------
+class FollowUser(View):
+    methods = ['GET']
+    decorators = [login_required]
+
+    def dispatch_request(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        follower = Follow.query.filter_by(user_id=user_id, follower_id=current_user.id).first()
+
+        if not user:
+            flash('User does not exist', 'danger')
+        elif follower:
+            db.session.delete(follower)
+            db.session.commit()
+        else:
+            follower = Follow(user_id=user_id, follower_id=current_user.id)
+            db.session.add(follower)
+            db.session.commit()
+        return redirect(url_for('users.user_profile', username=user.username))
+
+
+users.add_url_rule('/user/follow/<int:user_id>', view_func=FollowUser.as_view('follow_user'))
