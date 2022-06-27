@@ -24,3 +24,6 @@
     width: 150px;
     height: 150px;
 }
+
+/*comments css*/
+.link-muted { color: #aaa; } .link-muted:hover { color: #1266f1; }

@@ -257,7 +257,7 @@ pins.add_url_rule('/board/<int:board_id>/delete', view_func=DeleteBoard.as_view(
 
 # Like pin-----------------------------------------------------------------
 class LikePin(View):
-    methods = ['POST', 'GET']
+    methods = ['GET']
     decorators = [login_required]
 
     def dispatch_request(self, pin_id):
@@ -280,7 +280,7 @@ pins.add_url_rule('/pin/like/<int:pin_id>', view_func=LikePin.as_view('like_pin'
 
 
 class CreateComment(View):
-    methods = ['GET', 'POST']
+    methods = ['POST']
     decorators = [login_required]
 
     def dispatch_request(self, pin_id):
@@ -301,3 +301,26 @@ class CreateComment(View):
 
 
 pins.add_url_rule('/pin/<int:pin_id>/comment', view_func=CreateComment.as_view('create_comment'))
+
+
+class DeleteComment(View):
+    methods = ['POST', 'GET']
+    decorators = [login_required]
+
+    def dispatch_request(self, comment_id, pin_id):
+        comment = Comment.query.filter_by(id=comment_id).first()
+        if comment is not None:
+            if comment.user_id == current_user.id:
+                Comment.query.filter_by(id=comment_id).delete()
+                db.session.commit()
+                flash('Comment has been deleted.', 'info')
+            else:
+                flash('You have no access to delete this comment', 'warning')
+        else:
+            flash('Comment does not exist.', 'info')
+            return redirect(url_for('main.home_page'))
+        return redirect(url_for('pins.selected_pin', pin_id=pin_id))
+
+
+pins.add_url_rule('/pin/<int:pin_id>/comment/<int:comment_id>/delete',
+                  view_func=DeleteComment.as_view('delete_comment'))

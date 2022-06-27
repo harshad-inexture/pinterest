@@ -2,10 +2,9 @@
 {% block content %}
 <br>
 <div class="container">
-    <div class="row ">
+    <div class="row">
         <div class="box col-md-6">
             <img src="{{ url_for('static',filename='pin_img/' + pin.pin_pic) }} ">
-
 
             <!--save to profile-->
             <a class="btn btn-outline-danger btn-lg mt-3 " href="{{ url_for('pins.save_pin',pin_id=pin_id) }}">Save</a>
@@ -56,15 +55,50 @@
             {% endif %}
             <br>
 
-
-            <form method="POST" action="{{ url_for('pins.create_comment',pin_id=pin.id)}}" class="d-flex me-auto mt-4">
-                {{ form.hidden_tag() }}
-                <input class="form-control me-2" name="text" type="text" id="text" placeholder="Comment"
-                       aria-label="Comment">
-                <button class="btn btn-outline-danger" type="submit">Comment</button>
-            </form>
-
         </div>
     </div>
+
+    <form method="POST" action="{{ url_for('pins.create_comment',pin_id=pin.id)}}" class="d-flex me-auto mt-4">
+        {{ form.hidden_tag() }}
+        <input class="form-control me-2" name="text" type="text" id="text" placeholder="Type comment..."
+               aria-label="Comment">
+        <button class="btn btn-outline-danger" type="submit">Comment</button>
+    </form>
+
+
+    <section style="background-color: #e7effd;">
+        <div class="container my-5 py-5 text-dark">
+            <div class="row d-flex justify-content-center">
+                <div class="col-md-11 col-lg-9 col-xl-7">
+                    {% for comment in pin.comments %}
+                    <div class="d-flex flex-start mb-4">
+                        <img class="rounded-circle shadow-1-strong me-3"
+                             src="{{ url_for('static',filename='profile_img/' + comment.user.profile_pic) }}"
+                             alt="avatar"
+                             width="65"
+                             height="65"/>
+                        <div class="card w-100">
+                            <div class="card-body p-4">
+                                <div class="">
+                                    <h5>{{ comment.user.username }}</h5>
+                                    <p class="small">{{ comment.date_posted.strftime('%Y-%m-%d') }}</p>
+                                    <p>
+                                        {{ comment.text }}
+                                    </p>
+                                    {% if comment.user_id == current_user.id %}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a href="{{ url_for('pins.delete_comment',comment_id=comment.id, pin_id=pin.id) }}" class="link-muted text-danger">Delete</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
 </div>
 {% endblock content %}
