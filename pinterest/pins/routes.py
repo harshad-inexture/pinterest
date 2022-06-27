@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 
 from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
-from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags
+from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags, Comment
 from pinterest import db
 from pinterest.pins.utils import save_pin_img
 
@@ -277,3 +277,27 @@ class LikePin(View):
 
 
 pins.add_url_rule('/pin/like/<int:pin_id>', view_func=LikePin.as_view('like_pin'))
+
+
+class CreateComment(View):
+    methods = ['GET', 'POST']
+    decorators = [login_required]
+
+    def dispatch_request(self, pin_id):
+        text = request.form.get('text')
+
+        if not text:
+            flash('Comment can not be empty.', 'info')
+        else:
+            pin = Pin.query.filter_by(id=pin_id)
+            if pin:
+                comment = Comment(text=text, user_id=current_user.id, pin_id=pin_id)
+                db.session.add(comment)
+                db.session.commit()
+            else:
+                flash('Pin does not exist.', 'info')
+                return redirect(url_for('main.home_page'))
+        return redirect(url_for('pins.selected_pin', pin_id=pin_id))
+
+
+pins.add_url_rule('/pin/<int:pin_id>/comment', view_func=CreateComment.as_view('create_comment'))
