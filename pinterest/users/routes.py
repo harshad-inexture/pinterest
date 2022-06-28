@@ -4,15 +4,21 @@ from pinterest.main.form import SearchForm
 from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow
 from pinterest import db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
-from pinterest.users.utils import selected_user_tags, save_pic
+from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask_mail import Message
 from flask.views import View
-from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, user_not_exist_msg, user_pass_update_msg, reset_pass_email_msg
+from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \
+    user_not_exist_msg, user_pass_update_msg, reset_pass_email_msg
 
 users = Blueprint('users', __name__)
 
 
 class LoginPage(View):
+    """ user login page route.
+    LoginPage:returns
+    user login form page, if user is authenticated redirect to home page.
+    """
+
     methods = ['GET', 'POST']
 
     def dispatch_request(self):
@@ -40,9 +46,14 @@ class LoginPage(View):
 users.add_url_rule('/login', view_func=LoginPage.as_view('login_page'))
 
 
-# route for register------------------------------------------------
 @users.route("/register", methods=['POST', 'GET'])
 def register_page():
+    """ user registration route.
+
+    register_page :return: registration form page,
+    if form is validate on submit visitor have new account and redirect to login page.
+    """
+
     if current_user.is_authenticated:
         return redirect(url_for('main.home_page'))
     form = RegistrationForm()
@@ -69,6 +80,11 @@ def register_page():
 @users.route("/profile", methods=['POST', 'GET'])
 @login_required
 def profile_page():
+    """ profile page route,
+    :return:all details of logged user and update profile form,
+    if form is validate on submit it will update all details of user and redirect to new profile page.
+    """
+
     form = UpdateAccForm()
     tags = Tags.query.all()
     user_save_pins = SavePin.query.filter_by(user_id=current_user.id).all()
@@ -112,17 +128,24 @@ def profile_page():
                            selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins, boards=boards)
 
 
-# route for log out---------------------------------------
 @users.route("/logout")
 def logout():
+    """ logout route
+    :return: redirect to home page after logged out.
+    """
+
     logout_user()
     flash(user_logout_msg, 'success')
     return redirect(url_for('main.home_page'))
 
 
-# Show profile of users------------------------------------------
 @users.route("/profile/<string:username>")
 def user_profile(username):
+    """ user profile route
+    :param username:
+    :return: show selected user profile and logged user can follow and unfollow profile user.
+    """
+
     form = SearchForm()
     user_pro = User.query.filter_by(username=username).first()
     followers, following = count_follower(user_pro.id)
@@ -144,6 +167,10 @@ If you did not make this request then simply ignore this email and no changes wi
 
 @users.route("/reset_password", methods=['POST', 'GET'])
 def reset_request():
+    """ reset password route
+    :return: sent a mail to user email with token link
+    """
+
     if current_user.is_authenticated:
         return redirect(url_for('main.home_page'))
     form = RequestResetForm()
@@ -157,6 +184,11 @@ def reset_request():
 
 @users.route("/reset_password/<token>", methods=['POST', 'GET'])
 def reset_token(token):
+    """ reset password route
+    :param token: verify the token
+    :return: redirect to reset password form
+    """
+
     if current_user.is_authenticated:
         return redirect(url_for('main.home_page'))
     user = User.verify_reset_token(token)
@@ -173,14 +205,11 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-def count_follower(user_id):
-    followers = Follow.query.filter_by(user_id=user_id).count()
-    following = Follow.query.filter_by(follower_id=user_id).count()
-    return followers, following
-
-
 # follow user-----------------------------------------------------------------
 class FollowUser(View):
+    """follow unfollow user route.
+    """
+
     methods = ['GET']
     decorators = [login_required]
 

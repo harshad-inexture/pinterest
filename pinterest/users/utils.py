@@ -1,4 +1,5 @@
 from pinterest import app
+from pinterest.models import Follow
 import secrets
 import os
 from PIL import Image
@@ -47,3 +48,9 @@ def password_check(passwd):
     else:
         msg = 'Password validate'
         return False, msg
+
+
+def count_follower(user_id):
+    followers = Follow.query.filter_by(user_id=user_id).count()
+    following = Follow.query.filter_by(follower_id=user_id).count()
+    return followers, following

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, send_file, flash, redirect, url_for, request, abort, jsonify
+from flask import Blueprint, render_template, send_file, flash, redirect, url_for, request, abort
 from flask.views import View
 from flask_login import current_user, login_required
 
@@ -6,7 +6,7 @@ from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
 from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags, Comment
 from pinterest import db
-from pinterest.pins.utils import save_pin_img
+from pinterest.pins.utils import save_pin_img, get_selected_tags
 from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
     board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg, \
     board_empty_msg, board_remove_pin_msg, pin_not_exist_msg, pin_empty_comment_msg, pin_comment_not_exist_msg, \
@@ -16,10 +16,14 @@ pins = Blueprint('pins', __name__)
 
 
 class NewPin(View):
+    """ New pin route
+    :returns redirect to new pin form ,
+    if form is validate on submit it's creates new pin and redirect to home page.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    @property
     def dispatch_request(self):
         form = NewPostForm()
         tags = Tags.query.all()
@@ -45,6 +49,10 @@ pins.add_url_rule('/pin/new', view_func=NewPin.as_view('new_pin'))
 
 
 class SelectedPin(View):
+    """ selected pin route,
+    :returns all the details of pin.
+    """
+
     decorators = [login_required]
 
     def dispatch_request(self, pin_id):
@@ -58,14 +66,13 @@ class SelectedPin(View):
 pins.add_url_rule('/pin/<int:pin_id>', view_func=SelectedPin.as_view('selected_pin'))
 
 
-def get_selected_tags(pin_tags):
-    selected_tags = []
-    for tag in pin_tags:
-        selected_tags.append(tag.tag_id)
-    return selected_tags
-
-
 class UpdatePin(View):
+    """ update pin route
+    :param: pin_id
+    :returns redirect to update pin form,
+    if form is validate on submit redirect to new updated form.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -111,6 +118,10 @@ pins.add_url_rule("/pin/<int:pin_id>/update", view_func=UpdatePin.as_view('updat
 
 
 class DeletePin(View):
+    """
+    delete pin route.
+    """
+
     methods = ['POST']
     decorators = [login_required]
 
@@ -128,6 +139,9 @@ pins.add_url_rule('/pin/<int:pin_id>/delete', view_func=DeletePin.as_view('delet
 
 
 class UserSavePin(View):
+    """ save pin to the profile route
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -149,10 +163,19 @@ pins.add_url_rule('/pin/<int:pin_id>/save', view_func=UserSavePin.as_view('save_
 
 # Un-save pin by user----------------------------------------
 class UserUnSavePin(View):
+    """
+    unsave pin from the profile route.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
     def dispatch_request(self, pin_id):
+        """unsave pin
+        :param pin_id:'int'
+        :return: user profile page
+        """
+
         pin = Pin.query.get_or_404(pin_id)
         SavePin.query.filter_by(user_id=current_user.id, pin_id=pin_id).delete()
         db.session.commit()
@@ -165,6 +188,9 @@ pins.add_url_rule('/pin/<int:pin_id>/unsave', view_func=UserUnSavePin.as_view('u
 
 # create new board-------------------------------------------------
 class NewBoard(View):
+    """create new board route
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -184,8 +210,10 @@ class NewBoard(View):
 pins.add_url_rule('/board/new', view_func=NewBoard.as_view('new_board'))
 
 
-# save pin to board-------------------------------------
 class SavePinToBoard(View):
+    """save particulate pin to the board.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -209,8 +237,11 @@ class SavePinToBoard(View):
 pins.add_url_rule('/board/<int:board_id>/save/<int:pin_id>', view_func=SavePinToBoard.as_view('save_pin_board'))
 
 
-# Board info-------------------------------------
 class BoardInfo(View):
+    """board information route
+    :returns all details of board.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -219,7 +250,7 @@ class BoardInfo(View):
         board_name = Board.query.filter_by(id=board_id).first()
         board = SavePinBoard.query.filter_by(board_id=board_id).all()
         if board_name is not None:
-            if board == []:
+            if not board:
                 flash(board_empty_msg, 'info')
                 return render_template('board_details.html', board_name=board_name, board=board, form=form)
             else:
@@ -232,8 +263,9 @@ class BoardInfo(View):
 pins.add_url_rule('/board/<int:board_id>', view_func=BoardInfo.as_view('board_info'))
 
 
-# Remove pin from board---------------------------------------
 class RemovePinBoard(View):
+    """remove pins from the board."""
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -247,8 +279,10 @@ class RemovePinBoard(View):
 pins.add_url_rule('/board/<int:board_id>/<int:pin_id>/remove', view_func=RemovePinBoard.as_view('remove_pin_board'))
 
 
-# Edit board----------------------------------------------------------------
 class EditBoard(View):
+    """ update board route.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -274,8 +308,10 @@ class EditBoard(View):
 pins.add_url_rule('/board/<int:board_id>/edit', view_func=EditBoard.as_view('edit_board'))
 
 
-# Delete Board---------------------------------------------------------------
 class DeleteBoard(View):
+    """delete board route.
+    """
+
     methods = ['GET', 'POST']
     decorators = [login_required]
 
@@ -290,8 +326,12 @@ class DeleteBoard(View):
 pins.add_url_rule('/board/<int:board_id>/delete', view_func=DeleteBoard.as_view('delete_board'))
 
 
-# Like pin-----------------------------------------------------------------
 class LikePin(View):
+    """like pin route
+    :returns redirect to selected pin page,
+    if user is already like the pin then they can dislike the pin also.
+    """
+
     methods = ['GET']
     decorators = [login_required]
 
@@ -315,6 +355,9 @@ pins.add_url_rule('/pin/like/<int:pin_id>', view_func=LikePin.as_view('like_pin'
 
 
 class CreateComment(View):
+    """add comment to pin route
+    """
+
     methods = ['POST']
     decorators = [login_required]
 
@@ -339,6 +382,8 @@ pins.add_url_rule('/pin/<int:pin_id>/comment', view_func=CreateComment.as_view('
 
 
 class DeleteComment(View):
+    """delete comment from pin route."""
+
     methods = ['POST', 'GET']
     decorators = [login_required]
 
@@ -361,6 +406,8 @@ pins.add_url_rule('/pin/<int:pin_id>/comment/<int:comment_id>/delete',
 
 
 class DownloadPin(View):
+    """download pin route."""
+
     methods = ['GET']
     decorators = [login_required]
 

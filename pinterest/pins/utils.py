@@ -2,6 +2,7 @@ from pinterest import app
 import secrets, os
 from PIL import Image
 
+
 def save_pin_img(form_pic):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_pic.filename)
@@ -11,3 +12,10 @@ def save_pin_img(form_pic):
     i = Image.open(form_pic)
     i.save(picture_path)
     return pin_pic_fn
+
+
+def get_selected_tags(pin_tags):
+    selected_tags = []
+    for tag in pin_tags:
+        selected_tags.append(tag.tag_id)
+    return selected_tags
