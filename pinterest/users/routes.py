@@ -7,6 +7,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags, save_pic
 from flask_mail import Message
 from flask.views import View
+from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, user_not_exist_msg, user_pass_update_msg, reset_pass_email_msg
 
 users = Blueprint('users', __name__)
 
@@ -25,14 +26,14 @@ class LoginPage(View):
             if user and bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 next_page = request.args.get('next')
-                flash('Successfully logged in...!!!', 'success')
+                flash(user_login_msg, 'success')
 
                 if next_page:
                     return redirect(next_page)
                 else:
                     return redirect(url_for('main.home_page'))
             else:
-                flash('Login unsuccessfully. Please check email and password', 'danger')
+                flash(user_login_error_msg, 'danger')
         return render_template('login.html', title='Login', form=form)
 
 
@@ -98,7 +99,7 @@ def profile_page():
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
-        flash('Your account has been updated.!', 'success')
+        flash(user_acc_update_msg, 'success')
         return redirect(url_for('users.profile_page'))
 
     # current user data------------------------------------------
@@ -115,7 +116,7 @@ def profile_page():
 @users.route("/logout")
 def logout():
     logout_user()
-    flash('Successfully logged out...!!!', 'success')
+    flash(user_logout_msg, 'success')
     return redirect(url_for('main.home_page'))
 
 
@@ -149,7 +150,7 @@ def reset_request():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
-        flash('An email has been sent with instructions to reset password.', 'info')
+        flash(reset_pass_email_msg, 'info')
         return redirect(url_for('users.login_page'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
@@ -167,7 +168,7 @@ def reset_token(token):
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_pass
         db.session.commit()
-        flash('Your password has been updated!', 'success')
+        flash(user_pass_update_msg, 'success')
         return redirect(url_for('users.login_page'))
     return render_template('reset_token.html', title='Reset Password', form=form)
 
@@ -188,7 +189,7 @@ class FollowUser(View):
         follower = Follow.query.filter_by(user_id=user_id, follower_id=current_user.id).first()
 
         if not user:
-            flash('User does not exist', 'danger')
+            flash(user_not_exist_msg, 'danger')
         elif follower:
             db.session.delete(follower)
             db.session.commit()

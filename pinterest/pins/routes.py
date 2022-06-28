@@ -7,6 +7,10 @@ from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
 from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags, Comment
 from pinterest import db
 from pinterest.pins.utils import save_pin_img
+from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
+    board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg, \
+    board_empty_msg, board_remove_pin_msg, pin_not_exist_msg, pin_empty_comment_msg, pin_comment_not_exist_msg, \
+    pin_comment_access_msg
 
 pins = Blueprint('pins', __name__)
 
@@ -15,6 +19,7 @@ class NewPin(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
+    @property
     def dispatch_request(self):
         form = NewPostForm()
         tags = Tags.query.all()
@@ -26,14 +31,12 @@ class NewPin(View):
                 db.session.commit()
 
                 pin_tags = request.form.getlist('img_tag')
-
                 for tag in pin_tags:
                     pin_tag = PinTags(pin_id=pin.id, tag_id=tag)
                     db.session.add(pin_tag)
 
                 db.session.commit()
-
-                flash('Your post has been created...!!!', 'success')
+                flash(pin_create_msg, 'success')
                 return redirect(url_for('main.home_page'))
         return render_template('new_post.html', title='New Post', form=form, tags=tags)
 
@@ -94,7 +97,7 @@ class UpdatePin(View):
                         db.session.add(pin_new_tag)
 
             db.session.commit()
-            flash('Your pin has been updated.!', 'success')
+            flash(pin_update_msg, 'success')
             return redirect(url_for('pins.update_pin', pin_id=pin.id))
         if request.method == 'GET':
             form.title.data = pin.title
@@ -117,7 +120,7 @@ class DeletePin(View):
             abort(403)
         db.session.delete(pin)
         db.session.commit()
-        flash('Your pin has been deleted.!', 'success')
+        flash(pin_delete_msg, 'success')
         return redirect(url_for('users.profile_page'))
 
 
@@ -134,10 +137,10 @@ class UserSavePin(View):
             save_pin = SavePin(user_id=current_user.id, pin_id=pin_id)
             db.session.add(save_pin)
             db.session.commit()
-            flash('Pin has been saved.!', 'success')
+            flash(pin_save_msg, 'success')
             return redirect(url_for('users.profile_page'))
         else:
-            flash('Pin is already saved.!', 'info')
+            flash(pin_saved_msg, 'info')
             return redirect(url_for('users.profile_page'))
 
 
@@ -153,7 +156,7 @@ class UserUnSavePin(View):
         pin = Pin.query.get_or_404(pin_id)
         SavePin.query.filter_by(user_id=current_user.id, pin_id=pin_id).delete()
         db.session.commit()
-        flash('Pin has been Unsaved.!', 'success')
+        flash(pin_unsave_msg, 'success')
         return redirect(url_for('users.profile_page'))
 
 
@@ -172,7 +175,7 @@ class NewBoard(View):
             board = Board(user_id=current_user.id, name=form.name.data)
             db.session.add(board)
             db.session.commit()
-            flash('Your board has been created.!', 'success')
+            flash(board_create_msg, 'success')
             return redirect(url_for('users.profile_page'))
 
         return render_template('new_board.html', form=form, user_save_pins=user_save_pins)
@@ -196,10 +199,10 @@ class SavePinToBoard(View):
                 db.session.add(save_pin)
             db.session.add(pin_save_to_board)
             db.session.commit()
-            flash('Pin has been saved into board..!', 'success')
+            flash(board_save_pin_msg, 'success')
             return redirect(url_for('users.profile_page'))
         else:
-            flash('Pin is already saved into This board..!', 'info')
+            flash(board_saved_pin_msg, 'info')
             return redirect(url_for('users.profile_page'))
 
 
@@ -217,13 +220,14 @@ class BoardInfo(View):
         board = SavePinBoard.query.filter_by(board_id=board_id).all()
         if board_name is not None:
             if board == []:
-                flash('Your board is empty..!', 'info')
+                flash(board_empty_msg, 'info')
                 return render_template('board_details.html', board_name=board_name, board=board, form=form)
             else:
                 return render_template('board_details.html', board_name=board_name, board=board, form=form)
         else:
-            flash('Board does not exist.','warning')
+            flash(board_not_exist_msg, 'warning')
             return redirect(url_for('users.profile_page'))
+
 
 pins.add_url_rule('/board/<int:board_id>', view_func=BoardInfo.as_view('board_info'))
 
@@ -236,7 +240,7 @@ class RemovePinBoard(View):
     def dispatch_request(self, pin_id, board_id):
         SavePinBoard.query.filter_by(pin_id=pin_id, board_id=board_id).delete()
         db.session.commit()
-        flash('Your pin has been removed from the board.', 'success')
+        flash(board_remove_pin_msg, 'success')
         return redirect(url_for('pins.board_info', board_id=board_id))
 
 
@@ -256,14 +260,14 @@ class EditBoard(View):
             if form.validate_on_submit():
                 board.name = form.name.data
                 db.session.commit()
-                flash('Your board has been updated.!', 'success')
+                flash(board_update_msg, 'success')
                 return redirect(url_for('users.profile_page'))
 
         if request.method == 'GET':
             form.name.data = board.name
             return render_template('edit_board.html', form=form)
 
-        flash('Board does not exist!', 'warning')
+        flash(board_not_exist_msg, 'warning')
         return redirect(url_for('users.profile_page'))
 
 
@@ -279,7 +283,7 @@ class DeleteBoard(View):
         SavePinBoard.query.filter_by(board_id=board_id).delete()
         Board.query.filter_by(id=board_id, user_id=current_user.id).delete()
         db.session.commit()
-        flash('Board has been successfully deleted.', 'success')
+        flash(board_delete_msg, 'success')
         return redirect(url_for('users.profile_page'))
 
 
@@ -296,7 +300,7 @@ class LikePin(View):
         like = Like.query.filter_by(user_id=current_user.id, pin_id=pin_id).first()
 
         if not pin:
-            flash('Pin does not exist', 'success')
+            flash(pin_not_exist_msg, 'success')
         elif like:
             db.session.delete(like)
             db.session.commit()
@@ -318,7 +322,7 @@ class CreateComment(View):
         text = request.form.get('text')
 
         if not text:
-            flash('Comment can not be empty.', 'info')
+            flash(pin_empty_comment_msg, 'info')
         else:
             pin = Pin.query.filter_by(id=pin_id)
             if pin:
@@ -326,7 +330,7 @@ class CreateComment(View):
                 db.session.add(comment)
                 db.session.commit()
             else:
-                flash('Pin does not exist.', 'info')
+                flash(pin_not_exist_msg, 'info')
                 return redirect(url_for('main.home_page'))
         return redirect(url_for('pins.selected_pin', pin_id=pin_id))
 
@@ -344,11 +348,10 @@ class DeleteComment(View):
             if comment.user_id == current_user.id:
                 Comment.query.filter_by(id=comment_id).delete()
                 db.session.commit()
-                flash('Comment has been deleted.', 'info')
             else:
-                flash('You have no access to delete this comment', 'warning')
+                flash(pin_comment_access_msg, 'warning')
         else:
-            flash('Comment does not exist.', 'info')
+            flash(pin_comment_not_exist_msg, 'warning')
             return redirect(url_for('main.home_page'))
         return redirect(url_for('pins.selected_pin', pin_id=pin_id))
 
@@ -367,7 +370,8 @@ class DownloadPin(View):
             path = 'static/pin_img/' + pin.pin_pic
             return send_file(path, as_attachment=True)
         else:
-            flash('Pin does not exists', 'warning')
+            flash(pin_not_exist_msg, 'warning')
             return redirect(url_for('main.home_page'))
+
 
 pins.add_url_rule('/pin/<int:pin_id>/download', view_func=DownloadPin.as_view('download_pin'))
