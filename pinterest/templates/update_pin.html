@@ -55,6 +55,15 @@
                         {% endfor %}
                     </div>
 
+                    <label class="mt-5">Make Pin :</label>
+                    <input type="radio" class="btn-check" name="options-pin-update" id="public" value="0"
+                           autocomplete="off" checked>
+                    <label class="btn btn-outline-danger" for="public">Public</label>
+
+                    <input type="radio" class="btn-check" name="options-pin-update" id="private" value="1"
+                           autocomplete="off">
+                    <label class="btn btn-outline-danger" for="private">Private</label>
+
                 </fieldset>
                 <div class="form-group mt-4">
                     {{ form.update(class="btn btn-outline-secondary") }}

@@ -30,7 +30,9 @@ class NewPin(View):
         if form.validate_on_submit():
             if form.post_img.data:
                 pin_pic = save_pin_img(form.post_img.data)
-                pin = Pin(title=form.title.data, pin_pic=pin_pic, content=form.content.data, user_id=current_user.id)
+                privacy = request.form.get('options-pin')
+                pin = Pin(title=form.title.data, pin_pic=pin_pic, content=form.content.data, user_id=current_user.id,
+                          privacy=privacy)
                 db.session.add(pin)
                 db.session.commit()
 
@@ -86,9 +88,11 @@ class UpdatePin(View):
         if pin.author != current_user:
             abort(403)
         if form.validate_on_submit():
+            privacy = request.form.get('options-pin-update')
             pin.title = form.title.data
             pin.content = form.content.data
             new_tags = request.form.getlist('img_tag')
+            pin.privacy = privacy
 
             if selected_pin_tag != new_tags:
                 # for delete pin tag--------------------
@@ -197,8 +201,11 @@ class NewBoard(View):
     def dispatch_request(self):
         form = NewBoardForm()
         user_save_pins = SavePin.query.filter_by(user_id=current_user.id).all()
+
         if form.validate_on_submit():
-            board = Board(user_id=current_user.id, name=form.name.data)
+            privacy = request.form.get('options-board')
+            print(f'{privacy}')
+            board = Board(user_id=current_user.id, name=form.name.data, privacy=privacy)
             db.session.add(board)
             db.session.commit()
             flash(board_create_msg, 'success')
@@ -289,10 +296,11 @@ class EditBoard(View):
     def dispatch_request(self, board_id):
         form = NewBoardForm()
         board = Board.query.filter_by(id=board_id, user_id=current_user.id).first()
-
-        if board is None:
+        if board is not None:
+            privacy = request.form.get('options-board-e')
             if form.validate_on_submit():
                 board.name = form.name.data
+                board.privacy = privacy
                 db.session.commit()
                 flash(board_update_msg, 'success')
                 return redirect(url_for('users.profile_page'))

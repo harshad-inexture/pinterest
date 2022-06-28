@@ -56,6 +56,7 @@ class Pin(db.Model):
     pin_pic = db.Column(db.String(50), nullable=False, default='default.jpg')
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    privacy = db.Column(db.Integer, nullable=False)
 
     user_save_pins = db.relationship('SavePin', backref='save_pins', cascade="all,delete")
     user_save_pins_board = db.relationship('SavePinBoard', backref='save_pins_board', cascade="all,delete")
@@ -97,9 +98,10 @@ class Board(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    privacy = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"Save Board('{self.id}','{self.user_id}','{self.name}')"
+        return f"Save Board('{self.id}','{self.user_id}','{self.name}','{self.privacy}')"
 
 
 class SavePinBoard(db.Model):
