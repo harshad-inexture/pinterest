@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, jsonify
+from flask import Blueprint, render_template, send_file, flash, redirect, url_for, request, abort, jsonify
 from flask.views import View
 from flask_login import current_user, login_required
 
@@ -150,6 +150,7 @@ class UserUnSavePin(View):
     decorators = [login_required]
 
     def dispatch_request(self, pin_id):
+        pin = Pin.query.get_or_404(pin_id)
         SavePin.query.filter_by(user_id=current_user.id, pin_id=pin_id).delete()
         db.session.commit()
         flash('Pin has been Unsaved.!', 'success')
@@ -214,12 +215,15 @@ class BoardInfo(View):
         form = SearchForm()
         board_name = Board.query.filter_by(id=board_id).first()
         board = SavePinBoard.query.filter_by(board_id=board_id).all()
-        if board == []:
-            flash('Your board is empty..!', 'info')
-            return render_template('board_details.html', board_name=board_name, board=board, form=form)
+        if board_name is not None:
+            if board == []:
+                flash('Your board is empty..!', 'info')
+                return render_template('board_details.html', board_name=board_name, board=board, form=form)
+            else:
+                return render_template('board_details.html', board_name=board_name, board=board, form=form)
         else:
-            return render_template('board_details.html', board_name=board_name, board=board, form=form)
-
+            flash('Board does not exist.','warning')
+            return redirect(url_for('users.profile_page'))
 
 pins.add_url_rule('/board/<int:board_id>', view_func=BoardInfo.as_view('board_info'))
 
@@ -237,6 +241,33 @@ class RemovePinBoard(View):
 
 
 pins.add_url_rule('/board/<int:board_id>/<int:pin_id>/remove', view_func=RemovePinBoard.as_view('remove_pin_board'))
+
+
+# Edit board----------------------------------------------------------------
+class EditBoard(View):
+    methods = ['GET', 'POST']
+    decorators = [login_required]
+
+    def dispatch_request(self, board_id):
+        form = NewBoardForm()
+        board = Board.query.filter_by(id=board_id, user_id=current_user.id).first()
+
+        if board is None:
+            if form.validate_on_submit():
+                board.name = form.name.data
+                db.session.commit()
+                flash('Your board has been updated.!', 'success')
+                return redirect(url_for('users.profile_page'))
+
+        if request.method == 'GET':
+            form.name.data = board.name
+            return render_template('edit_board.html', form=form)
+
+        flash('Board does not exist!', 'warning')
+        return redirect(url_for('users.profile_page'))
+
+
+pins.add_url_rule('/board/<int:board_id>/edit', view_func=EditBoard.as_view('edit_board'))
 
 
 # Delete Board---------------------------------------------------------------
@@ -324,3 +355,19 @@ class DeleteComment(View):
 
 pins.add_url_rule('/pin/<int:pin_id>/comment/<int:comment_id>/delete',
                   view_func=DeleteComment.as_view('delete_comment'))
+
+
+class DownloadPin(View):
+    methods = ['GET']
+    decorators = [login_required]
+
+    def dispatch_request(self, pin_id):
+        pin = Pin.query.filter_by(id=pin_id).first()
+        if pin:
+            path = 'static/pin_img/' + pin.pin_pic
+            return send_file(path, as_attachment=True)
+        else:
+            flash('Pin does not exists', 'warning')
+            return redirect(url_for('main.home_page'))
+
+pins.add_url_rule('/pin/<int:pin_id>/download', view_func=DownloadPin.as_view('download_pin'))

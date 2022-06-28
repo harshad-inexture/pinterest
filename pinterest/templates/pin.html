@@ -24,6 +24,9 @@
                 </ul>
             </div>
 
+            <!--download pin-->
+            <a class=" btn btn-outline-danger btn-lg mt-3" href="{{ url_for('pins.download_pin',pin_id=pin_id) }}">Download</a>
+
         </div>
         <div class="col-md-6">
             <h3><a class="text-danger text-decoration-none">{{ pin.title }}</a></h3>

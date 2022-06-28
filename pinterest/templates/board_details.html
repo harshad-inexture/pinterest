@@ -15,7 +15,7 @@
             </svg>
         </button>
         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            <li><a class="dropdown-item" href="#">Edit Board</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('pins.edit_board',board_id=board_name.id) }}">Edit Board</a></li>
             <li><a class="dropdown-item" href="{{ url_for('pins.delete_board',board_id=board_name.id) }}">Delete Board</a></li>
         </ul>
     </div>
