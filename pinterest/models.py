@@ -22,6 +22,8 @@ class User(db.Model, UserMixin):
     follow = db.relationship('Follow', backref='user', cascade="all,delete")
     comments = db.relationship('Comment', backref='user', cascade="all,delete")
 
+    user_interest = db.relationship('UserInterest', backref='user', cascade="all,delete")
+
     def get_reset_token(self, expires_sec=900):
         s = Serializer(app.secret_key, expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
@@ -41,8 +43,8 @@ class User(db.Model, UserMixin):
 
 class UserInterest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"User Tags('{self.user_id}','{self.tag_id}')"
@@ -71,7 +73,7 @@ class Pin(db.Model):
 class PinTags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
-    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"PinTags('{self.pin_id}','{self.tag_id}')"
@@ -80,6 +82,9 @@ class PinTags(db.Model):
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+
+    user_interest = db.relationship('UserInterest', backref='user_interest', cascade="all,delete")
+    pin_tags = db.relationship('PinTags', backref='pin_tags', cascade="all,delete")
 
     def __repr__(self):
         return f"Tags('{self.name}')"

@@ -252,7 +252,7 @@ class BoardInfo(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, board_id):
+    def dispatch_request(self, board_id=None):
         form = SearchForm()
         board_name = Board.query.filter_by(id=board_id).first()
         board = SavePinBoard.query.filter_by(board_id=board_id).all()

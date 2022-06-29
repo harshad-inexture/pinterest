@@ -3,13 +3,18 @@
 <div class="container">
     <div class="raw">
         <div class="profile_pic d-flex justify-content-center mt-5 mb-5">
-            <div class="center-block">
+            <div class="center-block text-center">
                 <img class="rounded-circle" src="{{ profile_pic }}">
-                <h2 class="account-heading text-center">{{ current_user.username }}</h2>
-                <p class="text-secondary text-center">{{ current_user.email }}</p>
+                <h2 class="account-heading ">{{ current_user.username }}</h2>
+                <p class="text-secondary ">{{ current_user.email }}</p>
+
+                <button class="btn btn-danger" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseProfile" aria-expanded="false" aria-controls="collapseProfile">
+                    Edit Profile
+                </button>
             </div>
         </div>
-        <div class="content-section">
+        <div class="content-section collapse" id="collapseProfile">
             <form method="POST" action="" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-grp">
@@ -78,7 +83,6 @@
 </div>
 <br>
 <div class="row">
-
     <div class="center-block">
         <br>
         <div class="float-start">

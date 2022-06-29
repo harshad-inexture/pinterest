@@ -21,7 +21,9 @@ mail = Mail(app)
 from pinterest.users.routes import users
 from pinterest.pins.routes import pins
 from pinterest.main.routes import main
+from pinterest.admin.routes import admin
 
 app.register_blueprint(users)
 app.register_blueprint(pins)
 app.register_blueprint(main)
+app.register_blueprint(admin)

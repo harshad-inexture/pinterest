@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="center-block">
+        <br>
+        <div class="text-center">
+            <h2>Tags</h2>
+        </div>
+        <hr>
+        <div class="container">
+            <div class="row mb-1">
+                <div class="col-md-4">
+                    <p class="fs-3">Tag Name</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="fs-3">Update</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="fs-3">Delete</p>
+                </div>
+                <hr>
+            </div>
+            {% for tag in tags %}
+            <div class="row mb-1">
+                <div class="col-md-4">
+                    <p>{{ tag.name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <a class="text-muted" href="{{ url_for('admin.admin_tag_update',tag_id=tag.id) }}" role="button"
+                       type="submit">Update</a>
+                </div>
+                <div class="col-md-4">
+                    <a class="text-danger" href="{{ url_for('admin.admin_tag_delete',tag_id=tag.id) }}">Delete</a>
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
