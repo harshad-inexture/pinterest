@@ -1,11 +1,11 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request, session
+from flask import Blueprint, render_template, flash, redirect, url_for
 from pinterest.main.form import SearchForm
 from flask_login import current_user, login_required
 from pinterest.models import Tags, User, Board, Pin, BlockUser
 from pinterest import db
 from pinterest.admin.utils import block_user_list
 from pinterest.admin.form import UpdateTagForm, BlockUserMsg
-from pinterest.msg import admin_access_msg, user_not_exist_msg, admin_new_tag, admin_update_tag, admin_delete_tag, \
+from pinterest.msg import admin_access_msg, user_not_exist_msg, admin_update_tag, admin_delete_tag, \
     admin_tag_not_exist, admin_block_msg, admin_unblock_msg
 
 admin = Blueprint('admin', __name__)
@@ -43,11 +43,17 @@ def admin_new_tag():
     if id == 1:
         form = UpdateTagForm()
         if form.validate_on_submit():
-            new_tag = Tags(name=form.name.data)
-            db.session.add(new_tag)
-            db.session.commit()
-            flash(admin_new_tag, 'success')
-            return redirect(url_for('admin.admin_page'))
+            tag = Tags.query.filter_by(name=form.name.data).first()
+            if tag:
+                flash('Tag is already exist...!!!', 'warning')
+                return redirect(url_for('admin.admin_page'))
+            else:
+                new_tag = Tags(name=form.name.data)
+                db.session.add(new_tag)
+                db.session.commit()
+
+                flash('Tag has been created...!!!', 'success')
+                return redirect(url_for('admin.admin_page'))
         return render_template('admin_new_tag.html', form=form)
     else:
         flash(admin_access_msg, 'warning')
@@ -81,7 +87,7 @@ def admin_tag_update(tag_id):
         return redirect(url_for('main.home_page'))
 
 
-@admin.route("/admin/tags/<int:tag_id>/delete", methods=['POST', 'GET'])
+@admin.route("/admin/tags/<int:tag_id>/delete", methods=['GET'])
 @login_required
 def admin_tag_delete(tag_id):
     """delete tag route.

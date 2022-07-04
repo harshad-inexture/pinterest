@@ -34,7 +34,7 @@ user_not_exist_msg = 'User does not exist.'
 
 # admin messages-------------------------------------------------
 
-admin_access_msg = 'You dont have access to this page'
+admin_access_msg = 'You dont have access to this page.'
 admin_new_tag = 'Tag has been created...!!!'
 admin_update_tag = 'Tag has been updated...!!!'
 admin_delete_tag = 'Tag has been deleted...!!!'
