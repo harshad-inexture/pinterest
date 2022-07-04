@@ -31,3 +31,13 @@ user_acc_update_msg = 'Your account has been updated...!!!'
 reset_pass_email_msg: str = 'An email has been sent with instructions to reset password.'
 user_pass_update_msg = 'Your password has been updated...!!!'
 user_not_exist_msg = 'User does not exist.'
+
+# admin messages-------------------------------------------------
+
+admin_access_msg = 'You dont have access to this page'
+admin_new_tag = 'Tag has been created...!!!'
+admin_update_tag = 'Tag has been updated...!!!'
+admin_delete_tag = 'Tag has been deleted...!!!'
+admin_tag_not_exist = 'Tag does not exist...!!!'
+admin_block_msg = 'User has been blocked...!!!'
+admin_unblock_msg = 'User has been unblocked...!!!'

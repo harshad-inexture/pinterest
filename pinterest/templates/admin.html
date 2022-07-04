@@ -3,6 +3,10 @@
 <div class="row">
     <div class="center-block">
         <br>
+        <div>
+            <h1 class="text-center">Admin Page</h1>
+        </div>
+        <br>
         <div class="float-start">
             <h2>Tags</h2>
         </div>
@@ -15,7 +19,7 @@
                 </svg>
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop2">
-                <li><a class="dropdown-item" href="{{ url_for('admin.admin_new_tag') }}">New Pin</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.admin_new_tag') }}">New Tag</a></li>
             </ul>
         </div>
         <br><br>
@@ -50,6 +54,54 @@
             {% endfor %}
         </div>
     </div>
+
+    <div class="center-block">
+        <br>
+        <div class="float-start">
+            <h2>Users</h2>
+        </div>
+        <br><br>
+        <hr>
+        <div class="container">
+            <div class="row mb-1">
+                <div class="col-md-3">
+                    <p class="fs-3">User Name</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="fs-3">Email</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="fs-3">Details</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="fs-3">Action</p>
+                </div>
+                <hr>
+            </div>
+            {% for user in users %}
+            <div class="row mb-1">
+                <div class="col-md-3">
+                    <p>{{ user.username }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p>{{ user.email }}</p>
+                </div>
+                <div class="col-md-3">
+                    <a class="text-danger" href="{{url_for('admin.admin_user_details',user_id=user.id)}}">View Profile</a>
+                </div>
+                <div class="col-md-3">
+                    {% if user.id in block_list %}
+                        <a class="text-danger" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Unblock</a>
+                    {% else %}
+                        <a class="text-danger" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Block</a>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+    </div>
+
 </div>
 
 {% endblock content %}

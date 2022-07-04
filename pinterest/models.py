@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     profile_pic = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
+    # block = db.Column(db.Integer, nullable=False)
 
     pins = db.relationship('Pin', backref='author', cascade="all,delete")
     like = db.relationship('Like', backref='user', cascade="all,delete")
@@ -136,3 +137,9 @@ class Comment(db.Model):
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
     text = db.Column(db.String(200), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+class BlockUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reason = db.Column(db.String(200), nullable=False)

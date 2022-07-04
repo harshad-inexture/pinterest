@@ -1,9 +1,12 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, session
 from pinterest.main.form import SearchForm
 from flask_login import current_user, login_required
-from pinterest.models import Tags
+from pinterest.models import Tags, User, Board, Pin, BlockUser
 from pinterest import db
-from pinterest.admin.form import UpdateTagForm
+from pinterest.admin.utils import block_user_list
+from pinterest.admin.form import UpdateTagForm, BlockUserMsg
+from pinterest.msg import admin_access_msg, user_not_exist_msg, admin_new_tag, admin_update_tag, admin_delete_tag, \
+    admin_tag_not_exist, admin_block_msg, admin_unblock_msg
 
 admin = Blueprint('admin', __name__)
 
@@ -11,7 +14,6 @@ admin = Blueprint('admin', __name__)
 @admin.route("/admin", methods=['POST', 'GET'])
 @login_required
 def admin_page():
-
     """Admin home page.
     only admin can access this page.
     :return: details about tags,pin and user
@@ -21,16 +23,18 @@ def admin_page():
     if id == 1:
         form = SearchForm()
         tags = Tags.query.all()
-        return render_template('admin.html', tags=tags, form=form)
+        users = User.query.all()
+        blocks = BlockUser.query.all()
+        block_list = block_user_list(blocks)
+        return render_template('admin.html', tags=tags, form=form, users=users, block_list=block_list)
     else:
-        flash('You dont have access to this page', 'warning')
+        flash(admin_access_msg, 'warning')
         return redirect(url_for('main.home_page'))
 
 
 @admin.route("/admin/tags/new", methods=['POST', 'GET'])
 @login_required
 def admin_new_tag():
-
     """create new pin.
     :return: admin home page
     """
@@ -42,18 +46,17 @@ def admin_new_tag():
             new_tag = Tags(name=form.name.data)
             db.session.add(new_tag)
             db.session.commit()
-            flash('Tag has been created', 'success')
+            flash(admin_new_tag, 'success')
             return redirect(url_for('admin.admin_page'))
         return render_template('admin_new_tag.html', form=form)
     else:
-        flash('You dont have access to this page', 'warning')
+        flash(admin_access_msg, 'warning')
         return redirect(url_for('main.home_page'))
 
 
 @admin.route("/admin/tags/<int:tag_id>/update", methods=['POST', 'GET'])
 @login_required
 def admin_tag_update(tag_id):
-
     """update tag route
     :param tag_id: 'integer'
     :return: admin home page with updated tag.
@@ -67,21 +70,20 @@ def admin_tag_update(tag_id):
             if form.validate_on_submit():
                 tag.name = form.name.data
                 db.session.commit()
-                flash('Tag has been updated', 'success')
+                flash(admin_update_tag, 'success')
                 return redirect(url_for('admin.admin_page'))
             return render_template('admin_update_tag.html', form=form, tag=tag)
         else:
-            flash('Tag does not exist...!!!', 'warning')
+            flash(admin_tag_not_exist, 'warning')
             return redirect(url_for('admin.admin_page'))
     else:
-        flash('You dont have access to this page', 'warning')
+        flash(admin_access_msg, 'warning')
         return redirect(url_for('main.home_page'))
 
 
 @admin.route("/admin/tags/<int:tag_id>/delete", methods=['POST', 'GET'])
 @login_required
 def admin_tag_delete(tag_id):
-
     """delete tag route.
     :param tag_id: 'integer'
     :return: admin home page and delete tag.
@@ -93,11 +95,67 @@ def admin_tag_delete(tag_id):
         if tag is not None:
             tag.delete()
             db.session.commit()
-            flash('Tag has been deleted...!!!', 'success')
+            flash(admin_delete_tag, 'success')
             return redirect(url_for('admin.admin_page'))
         else:
-            flash('Tag does not exist', 'warning')
+            flash(admin_tag_not_exist, 'warning')
             return redirect(url_for('admin.admin_page'))
     else:
-        flash('You dont have access to this page', 'warning')
+        flash(admin_access_msg, 'warning')
+        return redirect(url_for('main.home_page'))
+
+
+@admin.route("/admin/user/<int:user_id>", methods=['POST', 'GET'])
+@login_required
+def admin_user_details(user_id):
+    """admin can see user details.
+    """
+
+    id = current_user.id
+    if id == 1:
+        form = SearchForm()
+        user = User.query.filter_by(id=user_id).first()
+        if user is not None:
+            boards = Board.query.filter_by(user_id=user_id).all()
+            pins = Pin.query.filter_by(user_id=user_id).all()
+            return render_template('admin_user_page.html', boards=boards, pins=pins, user=user, form=form)
+        else:
+            flash(user_not_exist_msg, 'warning')
+            return redirect(url_for('admin.admin_page'))
+    else:
+        flash(admin_access_msg, 'warning')
+        return redirect(url_for('main.home_page'))
+
+
+@admin.route("/admin/user/<int:user_id>/block", methods=['POST', 'GET'])
+@login_required
+def admin_block_user(user_id):
+    """admin can see user details and block and unblock them.
+    """
+
+    id = current_user.id
+    if id == 1:
+        form = SearchForm()
+        user = User.query.filter_by(id=user_id).first()
+        if user is not None:
+            block_msg = BlockUserMsg()
+            block_user = BlockUser.query.filter_by(user_id=user_id).first()
+            if block_user:
+                db.session.delete(block_user)
+                db.session.commit()
+                flash(admin_unblock_msg, 'success')
+                return redirect(url_for('admin.admin_page'))
+            else:
+                if block_msg.validate_on_submit():
+                    block_user = BlockUser(user_id=user_id, reason=block_msg.reason.data)
+                    db.session.add(block_user)
+                    db.session.commit()
+                    flash(admin_block_msg, 'success')
+                    return redirect(url_for('admin.admin_page'))
+            return render_template('admin_block_user.html', user=user, form=form, block_msg=block_msg)
+        else:
+            flash(user_not_exist_msg, 'warning')
+            return redirect(url_for('admin.admin_page'))
+    else:
+        flash(admin_access_msg, 'warning')
         return redirect(url_for('main.home_page'))
