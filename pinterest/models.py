@@ -16,7 +16,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     profile_pic = db.Column(db.String(20), nullable=False, default='default.jpg')
     password = db.Column(db.String(60), nullable=False)
-    # block = db.Column(db.Integer, nullable=False)
 
     pins = db.relationship('Pin', backref='author', cascade="all,delete")
     like = db.relationship('Like', backref='user', cascade="all,delete")

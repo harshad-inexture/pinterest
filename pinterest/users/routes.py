@@ -1,7 +1,7 @@
 from flask import Blueprint, session, render_template, flash, redirect, url_for, request
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
-from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow
+from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow, BlockUser
 from pinterest import db, bcrypt, mail
 from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags, save_pic, count_follower
@@ -29,17 +29,21 @@ class LoginPage(View):
 
         if form.validate_on_submit():
             user = User.query.filter_by(email=form.email.data).first()
-            if user and bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user, remember=form.remember.data)
-                next_page = request.args.get('next')
-                flash(user_login_msg, 'success')
+            blockuser = BlockUser.query.filter_by(user_id=user.id).first()
+            if blockuser is None:
+                if user and bcrypt.check_password_hash(user.password, form.password.data):
+                    login_user(user, remember=form.remember.data)
+                    next_page = request.args.get('next')
+                    flash(user_login_msg, 'success')
 
-                if next_page:
-                    return redirect(next_page)
+                    if next_page:
+                        return redirect(next_page)
+                    else:
+                        return redirect(url_for('main.home_page'))
                 else:
-                    return redirect(url_for('main.home_page'))
+                    flash(user_login_error_msg, 'danger')
             else:
-                flash(user_login_error_msg, 'danger')
+                flash('You are blocked because ' + blockuser.reason, 'danger')
         return render_template('login.html', title='Login', form=form)
 
 
