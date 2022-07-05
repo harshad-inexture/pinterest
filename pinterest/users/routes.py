@@ -68,7 +68,8 @@ def register_page():
         user = User(username=form.username.data, email=form.email.data, password=hashed_pass)
         db.session.add(user)
         db.session.commit()
-        interests = request.form.getlist('interest')
+        interests_list = request.form.get('interest')
+        interests = interests_list.split(",")
 
         for interest in interests:
             user_interest = UserInterest(user_id=user.id, tag_id=interest)

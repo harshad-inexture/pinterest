@@ -39,22 +39,20 @@
                         {% endif %}
                     </div>
 
-                    <div class="list-group">
-                        <br>
-                        <label>Pin Tags:</label>
+                    <label class="mt-5">Pin Tags:</label>
+                    <select id="multipleSelect" multiple name="img_tag" placeholder="Select Tags for pin"
+                            data-search="true"
+                            data-silent-initial-value-set="true">
                         {% for tag in tags %}
                         {% if tag.id in selected_pin_tag %}
-                        <label class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" name="img_tag" checked
-                                   value="{{tag.id}}">{{tag.name}}</label>
+                        <option value="{{tag.id}}" selected>{{tag.name}}</option>
                         {% else %}
-                        <label class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" name="img_tag"
-                                   value="{{tag.id}}">{{tag.name}}</label>
+                        <option value="{{tag.id}}">{{tag.name}}</option>
                         {% endif %}
                         {% endfor %}
-                    </div>
 
+                    </select>
+                    <br>
                     <label class="mt-5">Make Pin :</label>
                     <input type="radio" class="btn-check" name="options-pin-update" id="public" value="0"
                            autocomplete="off" checked>
@@ -65,7 +63,8 @@
                     <label class="btn btn-outline-danger" for="private">Private</label>
 
                 </fieldset>
-                <div class="form-group mt-4">
+                <div class="form-group mt-5 text-center">
+                    <hr>
                     {{ form.update(class="btn btn-outline-secondary") }}
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#DeletePin">

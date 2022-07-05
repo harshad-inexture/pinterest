@@ -36,7 +36,9 @@ class NewPin(View):
                 db.session.add(pin)
                 db.session.commit()
 
-                pin_tags = request.form.getlist('img_tag')
+                pin_tag_list = request.form.get('img_tag')
+                pin_tags = pin_tag_list.split(",")
+
                 for tag in pin_tags:
                     pin_tag = PinTags(pin_id=pin.id, tag_id=tag)
                     db.session.add(pin_tag)
@@ -91,7 +93,8 @@ class UpdatePin(View):
             privacy = request.form.get('options-pin-update')
             pin.title = form.title.data
             pin.content = form.content.data
-            new_tags = request.form.getlist('img_tag')
+            new_tags_list = request.form.get('img_tag')
+            new_tags = new_tags_list.split(",")
             pin.privacy = privacy
 
             if selected_pin_tag != new_tags:

@@ -43,14 +43,14 @@
                         {% endif %}
                     </div>
 
-                    <div class="list-group mt-4">
-                        <label>Pin Tags:</label>
+                    <label class="mt-5">Pin Tags:</label>
+                    <select id="multipleSelect" multiple name="img_tag" placeholder="Select Tags for pin" data-search="true"
+                            data-silent-initial-value-set="true">
                         {% for tag in tags %}
-                        <label class="list-group-item">
-                            <input class="form-check-input me-1" type="checkbox" name="img_tag" value="{{tag.id}}">{{tag.name}}</label>
+                            <option value="{{tag.id}}">{{tag.name}}</option>
                         {% endfor %}
-                    </div>
-
+                    </select>
+                    <br>
                     <label class="mt-5">Make Pin :</label>
                     <input type="radio" class="btn-check" name="options-pin" id="public" value="0"
                            autocomplete="off" checked>
@@ -70,4 +70,5 @@
         </div>
     </div>
 </div>
+
 {% endblock content %}
