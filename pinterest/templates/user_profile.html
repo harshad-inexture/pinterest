@@ -7,18 +7,23 @@
                 <img class="rounded-circle" src="{{ profile_pic }}">
                 <h2 class="account-heading text-center">{{ user.username }}</h2>
                 <p class="text-secondary text-center">{{ user.email }}</p>
-                <p class="text-secondary text-center">{{ followers }} Followers {{ following }} Following</p>
+                <p class="text-secondary text-center"><span id="follower-count">{{ followers }}</span> Followers {{
+                    following }} Following</p>
+
                 <div class="text-center">
                     {% if current_user.id in user.follow|map(attribute="user_id")|list %}
-                    <a class="btn btn-outline-danger btn-lg" href="{{ url_for('users.follow_user', user_id=user.id) }}">
+                    <a class="btn btn-outline-danger btn-lg unfollow" id="{{ user.id }}"
+                       href="{{ url_for('users.follow_user', user_id=user.id) }}">
                         <p>Unfollow</p>
                     </a>
                     {% else %}
-                    <a class="btn btn-outline-danger btn-lg" href="{{ url_for('users.follow_user', user_id=user.id) }}">
+                    <a class="btn btn-outline-danger btn-lg follow" id="{{ user.id }}"
+                       href="{{ url_for('users.follow_user', user_id=user.id) }}">
                         <p>Follow</p>
                     </a>
                     {% endif %}
                 </div>
+
                 <p></p>
             </div>
         </div>

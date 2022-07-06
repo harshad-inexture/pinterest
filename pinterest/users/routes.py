@@ -1,4 +1,4 @@
-from flask import Blueprint, session, render_template, flash, redirect, url_for, request
+from flask import Blueprint, session, render_template, flash, redirect, url_for, request, jsonify
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
 from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow, BlockUser
@@ -210,28 +210,29 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-# follow user-----------------------------------------------------------------
-class FollowUser(View):
+@users.route('/user/follow/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def follow_user(user_id):
     """follow unfollow user route.
     """
 
-    methods = ['GET']
-    decorators = [login_required]
+    if request.method == "POST":
 
-    def dispatch_request(self, user_id):
-        user = User.query.filter_by(id=user_id).first()
         follower = Follow.query.filter_by(user_id=user_id, follower_id=current_user.id).first()
-
-        if not user:
-            flash(user_not_exist_msg, 'danger')
-        elif follower:
+        response = {}
+        if follower:
             db.session.delete(follower)
             db.session.commit()
+            response['follower'] = False
         else:
             follower = Follow(user_id=user_id, follower_id=current_user.id)
             db.session.add(follower)
             db.session.commit()
-        return redirect(url_for('users.user_profile', username=user.username))
+            response['follower'] = True
 
+        follower_count = Follow.query.filter_by(user_id=user_id).count()
+        response['follower_count'] = follower_count
 
-users.add_url_rule('/user/follow/<int:user_id>', view_func=FollowUser.as_view('follow_user'))
+        return jsonify(response)
+    else:
+        return redirect(url_for('main.home_page'))

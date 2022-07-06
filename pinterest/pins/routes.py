@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, send_file, flash, redirect, url_for, request, abort
+from flask import Blueprint, render_template, send_file, flash, redirect, url_for, request, abort, jsonify
 from flask.views import View
 from flask_login import current_user, login_required
+from sqlalchemy import func
 
 from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
@@ -15,6 +16,19 @@ from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_sa
 pins = Blueprint('pins', __name__)
 
 
+def list_tag_trandings(all_tag, tranding_tag):
+    tranding_tag = sorted(tranding_tag, reverse=True)
+    list1 = []
+    list2 = []
+    for i in all_tag:
+        list1.append(i.id)
+    for j in tranding_tag:
+        list2.append(j.tag_id)
+    for k in list1:
+        if k not in list2:
+            list2.append(k)
+    return list2
+
 class NewPin(View):
     """ New pin route
     :returns redirect to new pin form ,
@@ -26,7 +40,14 @@ class NewPin(View):
 
     def dispatch_request(self):
         form = NewPostForm()
-        tags = Tags.query.all()
+        all_tags = Tags.query.all()
+
+        """get count of each tag, which is used in pins
+            for finding out tranding tags
+        """
+        tranding_tags_dict = db.session.query(func.count(PinTags.tag_id), PinTags.tag_id).group_by(PinTags.tag_id).all()
+
+        tags = list_tag_trandings(all_tags, tranding_tags_dict)
         if form.validate_on_submit():
             if form.post_img.data:
                 pin_pic = save_pin_img(form.post_img.data)
@@ -46,7 +67,7 @@ class NewPin(View):
                 db.session.commit()
                 flash(pin_create_msg, 'success')
                 return redirect(url_for('main.home_page'))
-        return render_template('new_post.html', title='New Post', form=form, tags=tags)
+        return render_template('new_post.html', title='New Post', form=form, tags=tags, all_tags=all_tags)
 
 
 pins.add_url_rule('/pin/new', view_func=NewPin.as_view('new_pin'))
@@ -337,32 +358,35 @@ class DeleteBoard(View):
 pins.add_url_rule('/board/<int:board_id>/delete', view_func=DeleteBoard.as_view('delete_board'))
 
 
-class LikePin(View):
+@pins.route('/pin/<int:pin_id>/like', methods=['GET', 'POST'])
+def like_action(pin_id):
     """like pin route
-    :returns redirect to selected pin page,
-    if user is already like the pin then they can dislike the pin also.
-    """
+        :returns redirect to selected pin page,
+        if user is already like the pin then they can dislike the pin also.
+        """
 
-    methods = ['GET']
-    decorators = [login_required]
+    if request.method == "POST":
 
-    def dispatch_request(self, pin_id):
-        pin = Pin.query.filter_by(id=pin_id).first()
+        """THIS QUERY CONFIRM THAT POST IS LIKED BY CURRENT_USER OR NOT"""
         like = Like.query.filter_by(user_id=current_user.id, pin_id=pin_id).first()
-
-        if not pin:
-            flash(pin_not_exist_msg, 'success')
-        elif like:
+        response = {}
+        if like:
             db.session.delete(like)
             db.session.commit()
+            response['like'] = False
         else:
             like = Like(user_id=current_user.id, pin_id=pin_id)
             db.session.add(like)
             db.session.commit()
-        return redirect(url_for('pins.selected_pin', pin_id=pin_id))
+            response['like'] = True
 
+        """THIS QUERY FETCHED ALL LIKES COUNT OF PIN USING PIN_ID"""
+        like_values = Like.query.filter_by(pin_id=pin_id).count()
+        response['like_value'] = like_values
 
-pins.add_url_rule('/pin/like/<int:pin_id>', view_func=LikePin.as_view('like_pin'))
+        return jsonify(response)
+    else:
+        return redirect(url_for('main.home_page'))
 
 
 class CreateComment(View):

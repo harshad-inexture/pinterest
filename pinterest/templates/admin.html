@@ -91,9 +91,9 @@
                 </div>
                 <div class="col-md-3">
                     {% if user.id in block_list %}
-                        <a class="text-danger" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Unblock</a>
+                        <a class="text-danger" id="block-{{ user.id }}" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Unblock</a>
                     {% else %}
-                        <a class="text-danger" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Block</a>
+                        <a class="text-danger" id="block-{{ user.id }}" href="{{url_for('admin.admin_block_user',user_id=user.id)}}">Block</a>
                     {% endif %}
                 </div>
             </div>

@@ -47,7 +47,11 @@
                     <select id="multipleSelect" multiple name="img_tag" placeholder="Select Tags for pin" data-search="true"
                             data-silent-initial-value-set="true">
                         {% for tag in tags %}
-                            <option value="{{tag.id}}">{{tag.name}}</option>
+                        {% for i in all_tags %}
+                            {% if i.id==tag %}
+                                <option value="{{i.id}}">{{i.name}}</option>
+                            {% endif %}
+                        {% endfor %}
                         {% endfor %}
                     </select>
                     <br>

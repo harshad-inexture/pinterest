@@ -141,9 +141,10 @@ def admin_block_user(user_id):
 
     id = current_user.id
     if id == 1:
-        form = SearchForm()
         user = User.query.filter_by(id=user_id).first()
         if user is not None:
+
+            form = SearchForm()
             block_msg = BlockUserMsg()
             block_user = BlockUser.query.filter_by(user_id=user_id).first()
             if block_user:
@@ -159,6 +160,7 @@ def admin_block_user(user_id):
                     flash(admin_block_msg, 'success')
                     return redirect(url_for('admin.admin_page'))
             return render_template('admin_block_user.html', user=user, form=form, block_msg=block_msg)
+
         else:
             flash(user_not_exist_msg, 'warning')
             return redirect(url_for('admin.admin_page'))
