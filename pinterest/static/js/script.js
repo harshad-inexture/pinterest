@@ -57,10 +57,10 @@
                 var follower_count = data['follower_count'];
 
                 if (follower) {
-                    tag = "<p>Unfollow</p>"
+                    tag = "<p style='margin : 0px'>Unfollow</p>"
                     count = follower_count
                 } else {
-                    tag = "<p>Follow</p>"
+                    tag = "<p style='margin : 0px'>Follow</p>"
                     count = follower_count
                 }
                 $("#" + user_id).html(tag);

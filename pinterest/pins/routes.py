@@ -9,9 +9,9 @@ from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like
 from pinterest import db
 from pinterest.pins.utils import save_pin_img, get_selected_tags
 from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
-    board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg, \
+    board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg,\
     board_empty_msg, board_remove_pin_msg, pin_not_exist_msg, pin_empty_comment_msg, pin_comment_not_exist_msg, \
-    pin_comment_access_msg
+    pin_comment_access_msg, admin_access_msg
 
 pins = Blueprint('pins', __name__)
 
@@ -28,6 +28,7 @@ def list_tag_trandings(all_tag, tranding_tag):
         if k not in list2:
             list2.append(k)
     return list2
+
 
 class NewPin(View):
     """ New pin route
@@ -80,7 +81,7 @@ class SelectedPin(View):
 
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         form = SearchForm()
         pin = Pin.query.get_or_404(pin_id)
         user = User.query.get_or_404(pin.user_id)
@@ -101,7 +102,7 @@ class UpdatePin(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         pin = Pin.query.get_or_404(pin_id)
         user = User.query.get_or_404(pin.user_id)
         pin_tags = PinTags.query.filter_by(pin_id=pin_id).all()
@@ -153,7 +154,7 @@ class DeletePin(View):
     methods = ['POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         pin = Pin.query.get_or_404(pin_id)
         if pin.author != current_user:
             abort(403)
@@ -173,7 +174,7 @@ class UserSavePin(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         pin = SavePin.query.filter_by(pin_id=pin_id).first()
         if pin is None:
             save_pin = SavePin(user_id=current_user.id, pin_id=pin_id)
@@ -198,7 +199,7 @@ class UserUnSavePin(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         """unsave pin
         :param pin_id:'int'
         :return: user profile page
@@ -248,7 +249,7 @@ class SavePinToBoard(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, board_id, pin_id):
+    def dispatch_request(self, board_id=None, pin_id=None):
         board = SavePinBoard.query.filter_by(board_id=board_id, pin_id=pin_id).first()
         saved_pin = SavePin.query.filter_by(user_id=current_user.id, pin_id=pin_id).first()
         if board is None:
@@ -279,19 +280,50 @@ class BoardInfo(View):
     def dispatch_request(self, board_id=None):
         form = SearchForm()
         board_name = Board.query.filter_by(id=board_id).first()
+        if board_name.user_id == current_user.id:
+            board = SavePinBoard.query.filter_by(board_id=board_id).all()
+            if board_name is not None:
+                if not board:
+                    flash(board_empty_msg, 'info')
+                    return render_template('board_details.html', board_name=board_name, board=board, form=form)
+                else:
+                    return render_template('board_details.html', board_name=board_name, board=board, form=form)
+            else:
+                flash(board_not_exist_msg, 'warning')
+                return redirect(url_for('users.profile_page'))
+        else:
+            flash(admin_access_msg, 'warning')
+            return redirect(url_for('users.profile_page'))
+
+
+pins.add_url_rule('/board/<int:board_id>', view_func=BoardInfo.as_view('board_info'))
+
+
+class UserBoardInfo(View):
+    """board information route
+    :returns all details of board.
+    """
+
+    methods = ['GET', 'POST']
+    decorators = [login_required]
+
+    def dispatch_request(self, board_id=None):
+        form = SearchForm()
+        board_name = Board.query.filter_by(id=board_id).first()
+
         board = SavePinBoard.query.filter_by(board_id=board_id).all()
         if board_name is not None:
             if not board:
                 flash(board_empty_msg, 'info')
-                return render_template('board_details.html', board_name=board_name, board=board, form=form)
+                return render_template('user_board_details.html', board_name=board_name, board=board, form=form)
             else:
-                return render_template('board_details.html', board_name=board_name, board=board, form=form)
+                return render_template('user_board_details.html', board_name=board_name, board=board, form=form)
         else:
             flash(board_not_exist_msg, 'warning')
             return redirect(url_for('users.profile_page'))
 
 
-pins.add_url_rule('/board/<int:board_id>', view_func=BoardInfo.as_view('board_info'))
+pins.add_url_rule('/user/board/<int:board_id>', view_func=UserBoardInfo.as_view('user_board_info'))
 
 
 class RemovePinBoard(View):
@@ -300,7 +332,7 @@ class RemovePinBoard(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id, board_id):
+    def dispatch_request(self, pin_id=None, board_id=None):
         SavePinBoard.query.filter_by(pin_id=pin_id, board_id=board_id).delete()
         db.session.commit()
         flash(board_remove_pin_msg, 'success')
@@ -317,7 +349,7 @@ class EditBoard(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, board_id):
+    def dispatch_request(self, board_id=None):
         form = NewBoardForm()
         board = Board.query.filter_by(id=board_id, user_id=current_user.id).first()
         if board is not None:
@@ -347,7 +379,7 @@ class DeleteBoard(View):
     methods = ['GET', 'POST']
     decorators = [login_required]
 
-    def dispatch_request(self, board_id):
+    def dispatch_request(self, board_id=None):
         SavePinBoard.query.filter_by(board_id=board_id).delete()
         Board.query.filter_by(id=board_id, user_id=current_user.id).delete()
         db.session.commit()
@@ -396,7 +428,7 @@ class CreateComment(View):
     methods = ['POST']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         text = request.form.get('text')
 
         if not text:
@@ -422,7 +454,7 @@ class DeleteComment(View):
     methods = ['POST', 'GET']
     decorators = [login_required]
 
-    def dispatch_request(self, comment_id, pin_id):
+    def dispatch_request(self, comment_id=None, pin_id=None):
         comment = Comment.query.filter_by(id=comment_id).first()
         if comment is not None:
             if comment.user_id == current_user.id:
@@ -446,7 +478,7 @@ class DownloadPin(View):
     methods = ['GET']
     decorators = [login_required]
 
-    def dispatch_request(self, pin_id):
+    def dispatch_request(self, pin_id=None):
         pin = Pin.query.filter_by(id=pin_id).first()
         if pin:
             path = 'static/pin_img/' + pin.pin_pic

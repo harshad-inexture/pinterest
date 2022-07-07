@@ -155,9 +155,10 @@ def user_profile(username):
     user_pro = User.query.filter_by(username=username).first()
     followers, following = count_follower(user_pro.id)
     pins = Pin.query.filter_by(user_id=user_pro.id).all()
+    boards = Board.query.filter_by(user_id=user_pro.id).all()
     profile_pic = url_for('static', filename='profile_img/' + user_pro.profile_pic)
     return render_template('user_profile.html', title=username, user=user_pro, profile_pic=profile_pic, pins=pins,
-                           form=form, followers=followers, following=following)
+                           form=form, followers=followers, following=following, boards=boards)
 
 
 def send_reset_email(user):
