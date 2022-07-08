@@ -1,4 +1,4 @@
-from pinterest import app
+from flask import current_app
 from pinterest.models import Follow
 import secrets
 import os
@@ -9,7 +9,7 @@ def save_pic(form_pic):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_pic.filename)
     profile_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_img', profile_fn)
+    picture_path = os.path.join(current_app.root_path, 'static/profile_img', profile_fn)
 
     pic_size = (150, 150)
     i = Image.open(form_pic)
