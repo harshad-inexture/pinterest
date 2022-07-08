@@ -8,7 +8,7 @@ from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask_mail import Message
 from flask.views import View
 from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \
-    user_not_exist_msg, user_pass_update_msg, reset_pass_email_msg
+     user_pass_update_msg, reset_pass_email_msg
 
 users = Blueprint('users', __name__)
 
@@ -211,7 +211,7 @@ def reset_token(token):
     return render_template('reset_token.html', title='Reset Password', form=form)
 
 
-@users.route('/user/follow/<int:user_id>', methods=['GET', 'POST'])
+@users.route('/user/follow/<int:user_id>', methods=['POST'])
 @login_required
 def follow_user(user_id):
     """follow unfollow user route.
