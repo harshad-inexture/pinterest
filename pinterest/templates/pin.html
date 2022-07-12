@@ -67,7 +67,7 @@
         <div class="container my-5 py-5 text-dark">
             <div class="row d-flex justify-content-center">
                 <div class="col-md-11 col-lg-9 col-xl-7">
-                    {% for comment in pin.comments %}
+                    {% for comment in comments %}
                     <div class="d-flex flex-start mb-4">
                         <img class="rounded-circle shadow-1-strong me-3"
                              src="{{ url_for('static',filename='profile_img/' + comment.user.profile_pic) }}"

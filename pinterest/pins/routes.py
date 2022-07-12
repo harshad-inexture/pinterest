@@ -7,27 +7,13 @@ from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
 from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags, Comment
 from pinterest import db
-from pinterest.pins.utils import save_pin_img, get_selected_tags
+from pinterest.pins.utils import save_pin_img, get_selected_tags, list_tag_trandings
 from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
     board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg,\
     board_empty_msg, board_remove_pin_msg, pin_not_exist_msg, pin_empty_comment_msg, pin_comment_not_exist_msg, \
     pin_comment_access_msg, admin_access_msg
 
 pins = Blueprint('pins', __name__)
-
-
-def list_tag_trandings(all_tag, tranding_tag):
-    tranding_tag = sorted(tranding_tag, reverse=True)
-    list1 = []
-    list2 = []
-    for i in all_tag:
-        list1.append(i.id)
-    for j in tranding_tag:
-        list2.append(j.tag_id)
-    for k in list1:
-        if k not in list2:
-            list2.append(k)
-    return list2
 
 
 class NewPin(View):
@@ -84,9 +70,11 @@ class SelectedPin(View):
     def dispatch_request(self, pin_id=None):
         form = SearchForm()
         pin = Pin.query.get_or_404(pin_id)
+        comments = Comment.query.filter_by(pin_id=pin_id).order_by(Comment.id.desc()).all()
         user = User.query.get_or_404(pin.user_id)
         boards = Board.query.filter_by(user_id=current_user.id).all()
-        return render_template('pin.html', title=pin.title, pin=pin, pin_id=pin_id, user=user, boards=boards, form=form)
+        return render_template('pin.html', title=pin.title, pin=pin, pin_id=pin_id, user=user, boards=boards, form=form,
+                               comments=comments)
 
 
 pins.add_url_rule('/pin/<int:pin_id>', view_func=SelectedPin.as_view('selected_pin'))
@@ -455,6 +443,12 @@ class DeleteComment(View):
     decorators = [login_required]
 
     def dispatch_request(self, comment_id=None, pin_id=None):
+        """
+        :param comment_id: integer
+        :param pin_id: integer
+        :return: redirect to home page
+        """
+
         comment = Comment.query.filter_by(id=comment_id).first()
         if comment is not None:
             if comment.user_id == current_user.id:
@@ -479,6 +473,11 @@ class DownloadPin(View):
     decorators = [login_required]
 
     def dispatch_request(self, pin_id=None):
+        """generate file path and send file
+        :param pin_id: integer
+        :return: redirect to home page
+        """
+
         pin = Pin.query.filter_by(id=pin_id).first()
         if pin:
             path = 'static/pin_img/' + pin.pin_pic

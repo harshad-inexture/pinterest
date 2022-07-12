@@ -6,6 +6,11 @@ from PIL import Image
 
 
 def save_pic(form_pic):
+    """separates extension from file name and convert filename to hex and add hex to extension
+    :param form_pic: string
+    :return: new file name or image name
+    """
+
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_pic.filename)
     profile_fn = random_hex + f_ext
@@ -20,6 +25,10 @@ def save_pic(form_pic):
 
 
 def selected_user_tags(user_tags):
+    """
+    :param user_tags: query obj
+    :return: user selected tag list
+    """
     selected_tags = []
     for i in user_tags:
         selected_tags.append(i.tag_id)
@@ -51,6 +60,11 @@ def password_check(passwd):
 
 
 def count_follower(user_id):
+    """count followers and user followings
+    :param user_id:
+    :return: int-followers, int-following
+    """
+
     followers = Follow.query.filter_by(user_id=user_id).count()
     following = Follow.query.filter_by(follower_id=user_id).count()
     return followers, following

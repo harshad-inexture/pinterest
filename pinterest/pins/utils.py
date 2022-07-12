@@ -19,3 +19,23 @@ def get_selected_tags(pin_tags):
     for tag in pin_tags:
         selected_tags.append(tag.tag_id)
     return selected_tags
+
+
+def list_tag_trandings(all_tag, tranding_tag):
+    """generates tranding tag list
+    :param all_tag:
+    :param tranding_tag:
+    :return: list of tranding tag id
+    """
+
+    tranding_tag = sorted(tranding_tag, reverse=True)
+    list1 = []
+    list2 = []
+    for i in all_tag:
+        list1.append(i.id)
+    for j in tranding_tag:
+        list2.append(j.tag_id)
+    for k in list1:
+        if k not in list2:
+            list2.append(k)
+    return list2

@@ -7,18 +7,19 @@ from flask_login import UserMixin
 
 @login_manager.user_loader
 def load_user(user_id):
-
     """summery of the load_user function
     :param user_id: 'integer'
-    :return:
-        get user from database
+    :return: get user from database
     """
 
     return User.query.get(int(user_id))
 
 
-# User's models----------------------------------------------------------------------------------
 class User(db.Model, UserMixin):
+    """
+    user db model class
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -50,6 +51,9 @@ class User(db.Model, UserMixin):
 
 
 class UserInterest(db.Model):
+    """user_interest db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)
@@ -58,8 +62,10 @@ class UserInterest(db.Model):
         return f"User Tags('{self.user_id}','{self.tag_id}')"
 
 
-# Pin's models------------------------------------------------------------------------------
 class Pin(db.Model):
+    """pin db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -79,6 +85,10 @@ class Pin(db.Model):
 
 
 class PinTags(db.Model):
+    """
+    pin_tags db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)
@@ -88,6 +98,10 @@ class PinTags(db.Model):
 
 
 class Tags(db.Model):
+    """
+    tag db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
 
@@ -99,6 +113,10 @@ class Tags(db.Model):
 
 
 class SavePin(db.Model):
+    """
+    save_pin db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
@@ -108,6 +126,10 @@ class SavePin(db.Model):
 
 
 class Board(db.Model):
+    """
+    board db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -118,6 +140,10 @@ class Board(db.Model):
 
 
 class SavePinBoard(db.Model):
+    """
+    save_pin_board db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
@@ -127,18 +153,30 @@ class SavePinBoard(db.Model):
 
 
 class Like(db.Model):
+    """
+    like db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
 
 
 class Follow(db.Model):
+    """
+    follow db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     follower_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
 class Comment(db.Model):
+    """
+    comment db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     pin_id = db.Column(db.Integer, db.ForeignKey('pin.id', ondelete='CASCADE'), nullable=False)
@@ -147,6 +185,10 @@ class Comment(db.Model):
 
 
 class BlockUser(db.Model):
+    """
+    block_user db model
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reason = db.Column(db.String(200), nullable=False)

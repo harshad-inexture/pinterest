@@ -7,7 +7,9 @@
                 <img class="rounded-circle" src="{{ profile_pic }}">
                 <h2 class="account-heading ">{{ current_user.username }}</h2>
                 <p class="text-secondary ">{{ current_user.email }}</p>
-
+                <span>{{ followers }} </span><a class="text-danger" href="{{ url_for('users.user_followers_list',user_id=current_user.id) }}">Followers </a> <span> {{ following }} </span> <a
+                    class="text-danger" href="{{ url_for('users.user_followings_list',user_id=current_user.id) }}"> Following</a>
+                <br><br>
                 <button class="btn btn-danger" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseProfile" aria-expanded="false" aria-controls="collapseProfile">
                     Edit Profile

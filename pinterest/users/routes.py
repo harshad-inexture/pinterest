@@ -8,7 +8,7 @@ from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask_mail import Message
 from flask.views import View
 from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \
-     user_pass_update_msg, reset_pass_email_msg
+    user_pass_update_msg, reset_pass_email_msg, user_access_msg
 
 users = Blueprint('users', __name__)
 
@@ -53,7 +53,6 @@ users.add_url_rule('/login', view_func=LoginPage.as_view('login_page'))
 @users.route("/register", methods=['POST', 'GET'])
 def register_page():
     """ user registration route.
-
     register_page :return: registration form page,
     if form is validate on submit visitor have new account and redirect to login page.
     """
@@ -81,7 +80,6 @@ def register_page():
     return render_template('register.html', title='Registration', form=form, tags=tags)
 
 
-# route for update profile--------------------------------------------------
 @users.route("/profile", methods=['POST', 'GET'])
 @login_required
 def profile_page():
@@ -94,6 +92,7 @@ def profile_page():
     tags = Tags.query.all()
     user_save_pins = SavePin.query.filter_by(user_id=current_user.id).all()
     user_tags = UserInterest.query.filter_by(user_id=current_user.id).all()
+    followers, following = count_follower(current_user.id)
     selected_tags = selected_user_tags(user_tags)
     interests = request.form.getlist('interests')
     pins = Pin.query.filter_by(user_id=current_user.id).all()
@@ -130,7 +129,46 @@ def profile_page():
 
     profile_pic = url_for('static', filename='profile_img/' + current_user.profile_pic)
     return render_template('profile.html', title='profile', form=form, profile_pic=profile_pic, tags=tags,
-                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins, boards=boards)
+                           selected_tags=selected_tags, pins=pins, user_save_pins=user_save_pins, boards=boards,
+                           followers=followers, following=following)
+
+
+@users.route("/profile/<int:user_id>/followers")
+@login_required
+def user_followers_list(user_id):
+    """user follower list
+    :param user_id: integer
+    :return: followers list to the template
+    """
+
+    if user_id == current_user.id:
+        form = SearchForm()
+        followers = Follow.query.filter_by(user_id=user_id).order_by(Follow.id.desc()).all()
+        if followers == [None]:
+            flash('You have no Followers.', 'info')
+            return redirect(url_for('users.profile_page'))
+        return render_template('user_followers.html', followers=followers, form=form)
+    flash(user_access_msg, 'warning')
+    return redirect(url_for('users.profile_page'))
+
+
+@users.route("/profile/<int:user_id>/following")
+@login_required
+def user_followings_list(user_id):
+    """user following list
+    :param user_id: integer
+    :return: following list to the template
+    """
+
+    if user_id == current_user.id:
+        form = SearchForm()
+        followings = Follow.query.filter_by(follower_id=user_id).order_by(Follow.id.desc()).all()
+        if followings == [None]:
+            flash('You are not following anyone.', 'info')
+            return redirect(url_for('users.profile_page'))
+        return render_template('user_following.html', followings=followings, form=form)
+    flash(user_access_msg, 'warning')
+    return redirect(url_for('users.profile_page'))
 
 
 @users.route("/logout")
@@ -191,7 +229,7 @@ def reset_request():
 @users.route("/reset_password/<token>", methods=['POST', 'GET'])
 def reset_token(token):
     """ reset password route
-    :param token: verify the token
+    :param token: string
     :return: redirect to reset password form
     """
 

@@ -9,6 +9,9 @@ main = Blueprint('main', __name__)
 
 
 class HomePage(View):
+    """home page for authentication user
+    """
+
     def dispatch_request(self):
         pins = Pin.query.all()
         if current_user.is_authenticated:
@@ -25,15 +28,22 @@ class HomePage(View):
 main.add_url_rule('/', view_func=HomePage.as_view('home_page'))
 
 
-# for passing the form to the base template
 @main.context_processor
 def base():
+    """for passing the form to the base template
+    :return:
+    """
+
     form = SearchForm()
     return dict(form=form)
 
 
 @main.route('/search', methods=['POST'])
 def search():
+    """search for pins
+    :return: searched pin page
+    """
+
     form = SearchForm()
     pins = Pin.query.all()
     if form.validate_on_submit():

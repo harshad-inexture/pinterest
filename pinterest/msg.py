@@ -31,6 +31,7 @@ user_acc_update_msg = 'Your account has been updated...!!!'
 reset_pass_email_msg: str = 'An email has been sent with instructions to reset password.'
 user_pass_update_msg = 'Your password has been updated...!!!'
 user_not_exist_msg = 'User does not exist.'
+user_access_msg = 'You have no access to this page.'
 
 # admin messages-------------------------------------------------
 
