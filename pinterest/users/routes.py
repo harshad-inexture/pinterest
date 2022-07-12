@@ -67,9 +67,9 @@ def register_page():
         user = User(username=form.username.data, email=form.email.data, password=hashed_pass)
         db.session.add(user)
         db.session.commit()
+
         interests_list = request.form.get('interest')
         interests = interests_list.split(",")
-
         for interest in interests:
             user_interest = UserInterest(user_id=user.id, tag_id=interest)
             db.session.add(user_interest)
@@ -94,7 +94,8 @@ def profile_page():
     user_tags = UserInterest.query.filter_by(user_id=current_user.id).all()
     followers, following = count_follower(current_user.id)
     selected_tags = selected_user_tags(user_tags)
-    interests = request.form.getlist('interests')
+    interests_list = request.form.get('interests')
+    interests = interests_list.split(",")
     pins = Pin.query.filter_by(user_id=current_user.id).all()
     boards = Board.query.filter_by(user_id=current_user.id).all()
 
