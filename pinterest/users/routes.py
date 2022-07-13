@@ -94,12 +94,12 @@ def profile_page():
     user_tags = UserInterest.query.filter_by(user_id=current_user.id).all()
     followers, following = count_follower(current_user.id)
     selected_tags = selected_user_tags(user_tags)
-    interests_list = request.form.get('interests')
-    interests = interests_list.split(",")
     pins = Pin.query.filter_by(user_id=current_user.id).all()
     boards = Board.query.filter_by(user_id=current_user.id).all()
 
     if form.validate_on_submit():
+        interests_list = request.form.get('interests')
+        interests = interests_list.split(",")
         if form.profile_pic.data:
             profile_name = save_pic(form.profile_pic.data)
             current_user.profile_pic = profile_name
@@ -112,10 +112,11 @@ def profile_page():
                     db.session.commit()
 
             # for update add new interests------------------------
-            for interest_id in interests:
-                if interest_id not in selected_tags:
-                    user_interest = UserInterest(user_id=current_user.id, tag_id=interest_id)
-                    db.session.add(user_interest)
+            if len(interests) != 1:
+                for interest_id in interests:
+                    if interest_id not in selected_tags:
+                        user_interest = UserInterest(user_id=current_user.id, tag_id=interest_id)
+                        db.session.add(user_interest)
 
         current_user.username = form.username.data
         current_user.email = form.email.data

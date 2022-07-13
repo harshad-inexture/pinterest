@@ -9,7 +9,7 @@ from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like
 from pinterest import db
 from pinterest.pins.utils import save_pin_img, get_selected_tags, list_tag_trandings
 from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
-    board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg,\
+    board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg, \
     board_empty_msg, board_remove_pin_msg, pin_not_exist_msg, pin_empty_comment_msg, pin_comment_not_exist_msg, \
     pin_comment_access_msg, admin_access_msg
 
@@ -103,9 +103,10 @@ class UpdatePin(View):
             privacy = request.form.get('options-pin-update')
             pin.title = form.title.data
             pin.content = form.content.data
+            pin.privacy = privacy
+
             new_tags_list = request.form.get('img_tag')
             new_tags = new_tags_list.split(",")
-            pin.privacy = privacy
 
             if selected_pin_tag != new_tags:
                 # for delete pin tag--------------------
@@ -115,12 +116,13 @@ class UpdatePin(View):
                         db.session.commit()
 
                 # for update add new pin tag------------------------
+
                 for interest_id in new_tags:
                     if interest_id not in selected_pin_tag:
                         pin_new_tag = PinTags(pin_id=pin_id, tag_id=interest_id)
                         db.session.add(pin_new_tag)
+                        db.session.commit()
 
-            db.session.commit()
             flash(pin_update_msg, 'success')
             return redirect(url_for('pins.update_pin', pin_id=pin.id))
         if request.method == 'GET':
