@@ -21,6 +21,3 @@ def user_interest_pins(inst_pin_id):
         list.append(pin.pin_id)
     return list
 
-
-def no_work_of_this():
-    return "just for test"
