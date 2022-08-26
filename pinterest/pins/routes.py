@@ -6,7 +6,7 @@ from sqlalchemy import func
 from pinterest.main.form import SearchForm
 from pinterest.pins.form import NewPostForm, UpdatePostForm, NewBoardForm
 from pinterest.models import User, Pin, Tags, SavePin, Board, SavePinBoard, Like, PinTags, Comment
-from pinterest import db
+from pinterest.factory import db
 from pinterest.pins.utils import save_pin_img, get_selected_tags, list_tag_trandings
 from pinterest.msg import pin_create_msg, pin_update_msg, pin_delete_msg, pin_saved_msg, pin_save_msg, pin_unsave_msg, \
     board_create_msg, board_update_msg, board_delete_msg, board_save_pin_msg, board_saved_pin_msg, board_not_exist_msg, \

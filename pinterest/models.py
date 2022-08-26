@@ -1,4 +1,4 @@
-from pinterest import db, login_manager
+from pinterest.factory import db, login_manager
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime

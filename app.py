@@ -1,5 +1,6 @@
-from pinterest import create_app
-app = create_app()
+from pinterest.factory import create_app
+import pinterest
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app(celery=pinterest.celery)
+    app.run()
