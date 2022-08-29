@@ -2,15 +2,13 @@ from flask import Blueprint, session, render_template, flash, redirect, url_for,
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
 from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow, BlockUser
-from pinterest.factory import db, bcrypt, mail
+from pinterest.factory import db, bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask.views import View
-from flask_mail import Message
 from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \
     user_pass_update_msg, reset_pass_email_msg, user_access_msg
 from pinterest.task import send_reset_email
-
 
 users = Blueprint('users', __name__)
 
@@ -226,7 +224,7 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         user_email = user.email
         user_token = user.get_reset_token()
-        send_reset_email.delay(user_email,user_token)
+        send_reset_email.delay(user_email, user_token)
         flash(reset_pass_email_msg, 'info')
         return redirect(url_for('users.login_page'))
     return render_template('reset_request.html', title='Reset Password', form=form)
