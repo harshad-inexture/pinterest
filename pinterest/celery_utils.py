@@ -1,5 +1,10 @@
+# import celeryconfig
+from pinterest.config import CeleryConfig
+
+
 def init_celery(celery, app):
     celery.conf.update(app.config)
+    celery.config_from_object(CeleryConfig)
     TaskBase = celery.Task
 
     class ContextTask(TaskBase):

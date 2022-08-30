@@ -1,5 +1,6 @@
+import logging
+
 from pinterest import celery
-from flask import url_for
 from flask_mail import Message
 from pinterest.factory import mail
 
@@ -11,3 +12,8 @@ def send_reset_email(user_email, user_token):
 If you did not make this request then simply ignore this email and no changes will be made.
 '''
     mail.send(msg)
+
+
+@celery.task()
+def print_hello():
+    print(f"New Post")

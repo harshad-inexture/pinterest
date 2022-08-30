@@ -1,5 +1,5 @@
 .env
-.idea
+.idea/
 dump.rdb
 
 # Created by https://www.toptal.com/developers/gitignore/api/flask,python
@@ -125,7 +125,7 @@ ipython_config.py
 __pypackages__/
 
 # Celery stuff
-celerybeat-schedule
+celerybeat-schedule.py
 celerybeat.pid
 
 # SageMath parsed files
