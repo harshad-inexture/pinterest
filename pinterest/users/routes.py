@@ -4,7 +4,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from pinterest.users.form import RegistrationForm, LoginForm, UpdateAccForm, RequestResetForm, ResetPasswordForm
 from pinterest.main.form import SearchForm
 from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Follow, BlockUser
-from pinterest.factory import db, bcrypt
+from pinterest import db, bcrypt
 from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask.views import View
 from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \

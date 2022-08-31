@@ -18,7 +18,7 @@ class Config:
     MAIL_USERNAME = os.getenv('EMAIL_USER')
     MAIL_PASSWORD = os.getenv('EMAIL_PASS')
 
-# tasks
+
 class CeleryConfig:
     CELERY_IMPORTS = ('pinterest.tasks')
     # CELERY_TASK_RESULT_EXPIRES = 30

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, url_for
 from pinterest.main.form import SearchForm
 from flask_login import current_user, login_required
 from pinterest.models import Tags, User, Board, Pin, BlockUser
-from pinterest.factory import db
+from pinterest import db
 from pinterest.admin.utils import block_user_list
 from pinterest.admin.form import UpdateTagForm, BlockUserMsg
 from pinterest.msg import admin_access_msg, user_not_exist_msg, admin_update_tag, admin_delete_tag, \

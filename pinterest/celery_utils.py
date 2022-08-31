@@ -1,5 +1,4 @@
-# import celeryconfig
-from pinterest.config import CeleryConfig
+from config import CeleryConfig
 
 
 def init_celery(celery, app):

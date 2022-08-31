@@ -1,8 +1,6 @@
-import logging
-
-from pinterest import celery
+from pinterest.factory import celery
 from flask_mail import Message
-from pinterest.factory import mail
+from pinterest import mail
 
 
 @celery.task()
