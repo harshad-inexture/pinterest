@@ -5,8 +5,7 @@ from flask_login import LoginManager
 from config import Config
 from flask_migrate import Migrate
 from flask_mail import Mail
-from .celery_utils import init_celery
-import os
+from celery import Celery
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -15,15 +14,11 @@ login_manager = LoginManager()
 login_manager.login_view = 'users.login_page'
 login_manager.login_message_category = 'info'
 mail = Mail()
+celery = Celery('pinterest', broker="redis://localhost:6379/1", backend="redis://localhost:6379/0")
 
-PKG_NAME = os.path.dirname(os.path.realpath(__file__)).split("/")[-1]
 
-
-def create_app(app_name=PKG_NAME, **kwargs):
-    app = Flask(app_name)
-    if kwargs.get("celery"):
-        init_celery(kwargs.get("celery"), app)
-
+def create_app(config_class=Config):
+    app = Flask(__name__)
     app.config.from_object(Config)
 
     db.init_app(app)

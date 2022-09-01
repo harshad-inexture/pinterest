@@ -1,4 +1,4 @@
-from pinterest.factory import celery
+from pinterest import celery
 from flask_mail import Message
 from pinterest import mail
 

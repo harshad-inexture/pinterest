@@ -2,8 +2,6 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# from pinterest import tasks
-
 load_dotenv()
 
 
@@ -20,15 +18,14 @@ class Config:
 
 
 class CeleryConfig:
-    CELERY_IMPORTS = ('pinterest.tasks')
-    # CELERY_TASK_RESULT_EXPIRES = 30
-    CELERY_TIMEZONE = 'UTC'
+    imports = ('pinterest.tasks')
+    timezone = 'UTC'
 
-    CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
+    accept_content = ['json', 'msgpack', 'yaml']
+    task_serializer = 'json'
+    result_serializer = 'json'
 
-    CELERYBEAT_SCHEDULE = {
+    beat_schedule = {
         'test-celery': {
             'task': 'pinterest.tasks.print_hello',
             # Every minute
