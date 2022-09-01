@@ -76,6 +76,11 @@ init_celery(celery, app)
 def print_hello():
     print(f"New Post")
 ```
+
+- Then the Flask application can request the execution of this background task as follows:
+```python
+result = print_hello.delay()
+```
 ***
 
 # Celery-beat configuration for task scheduling
