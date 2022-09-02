@@ -7,8 +7,8 @@ from pinterest.models import User, Pin, UserInterest, Tags, SavePin, Board, Foll
 from pinterest import db, bcrypt
 from pinterest.users.utils import selected_user_tags, save_pic, count_follower
 from flask.views import View
-from pinterest.msg import user_acc_update_msg, user_logout_msg, user_login_error_msg, user_login_msg, \
-    user_pass_update_msg, reset_pass_email_msg, user_access_msg
+from pinterest.msg import USER_ACC_UPDATE_MSG, USER_LOGOUT_MSG, USER_LOGIN_ERROR_MSG, USER_LOGIN_MSG, \
+    USER_PASS_UPDATE_MSG, RESET_PASS_EMAIL_MSG, USER_ACCESS_MSG
 from pinterest.tasks import send_reset_email
 
 users = Blueprint('users', __name__)
@@ -35,14 +35,14 @@ class LoginPage(View):
                 if user and bcrypt.check_password_hash(user.password, form.password.data):
                     login_user(user, remember=form.remember.data)
                     next_page = request.args.get('next')
-                    flash(user_login_msg, 'success')
+                    flash(USER_LOGIN_MSG, 'success')
 
                     if next_page:
                         return redirect(next_page)
                     else:
                         return redirect(url_for('main.home_page'))
                 else:
-                    flash(user_login_error_msg, 'danger')
+                    flash(USER_LOGIN_ERROR_MSG, 'danger')
             else:
                 flash('You are blocked because ' + blockuser.reason, 'danger')
         return render_template('login.html', title='Login', form=form)
@@ -122,7 +122,7 @@ def profile_page():
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
-        flash(user_acc_update_msg, 'success')
+        flash(USER_ACC_UPDATE_MSG, 'success')
         return redirect(url_for('users.profile_page'))
 
     # current user data------------------------------------------
@@ -151,7 +151,7 @@ def user_followers_list(user_id):
             flash('You have no Followers.', 'info')
             return redirect(url_for('users.profile_page'))
         return render_template('user_followers.html', followers=followers, form=form)
-    flash(user_access_msg, 'warning')
+    flash(USER_ACCESS_MSG, 'warning')
     return redirect(url_for('users.profile_page'))
 
 
@@ -170,7 +170,7 @@ def user_followings_list(user_id):
             flash('You are not following anyone.', 'info')
             return redirect(url_for('users.profile_page'))
         return render_template('user_following.html', followings=followings, form=form)
-    flash(user_access_msg, 'warning')
+    flash(USER_ACCESS_MSG, 'warning')
     return redirect(url_for('users.profile_page'))
 
 
@@ -181,7 +181,7 @@ def logout():
     """
 
     logout_user()
-    flash(user_logout_msg, 'success')
+    flash(USER_LOGOUT_MSG, 'success')
     return redirect(url_for('main.home_page'))
 
 
@@ -228,7 +228,7 @@ def reset_request():
         celery_result = send_reset_email.delay(user_email, user_token)
         print(celery_result.status)
 
-        flash(reset_pass_email_msg, 'info')
+        flash(RESET_PASS_EMAIL_MSG, 'info')
         return redirect(url_for('users.login_page'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
@@ -251,7 +251,7 @@ def reset_token(token):
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user.password = hashed_pass
         db.session.commit()
-        flash(user_pass_update_msg, 'success')
+        flash(USER_PASS_UPDATE_MSG, 'success')
         return redirect(url_for('users.login_page'))
     return render_template('reset_token.html', title='Reset Password', form=form)
 

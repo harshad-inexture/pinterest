@@ -1,9 +1,16 @@
 from flask import current_app
-import secrets, os
+import secrets
+import os
 from PIL import Image
 
 
 def save_pin_img(form_pic):
+    """
+    save image in static folder
+    :param form_pic:
+    :return: new image name
+    """
+
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_pic.filename)
     pin_pic_fn = random_hex + f_ext
@@ -15,6 +22,12 @@ def save_pin_img(form_pic):
 
 
 def get_selected_tags(pin_tags):
+    """
+    make a list of selected tag id
+    :param pin_tags:
+    :return: user selected tag list
+    """
+
     selected_tags = []
     for tag in pin_tags:
         selected_tags.append(tag.tag_id)

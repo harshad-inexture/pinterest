@@ -2,6 +2,13 @@ from config import CeleryConfig
 
 
 def init_celery(celery, app):
+    """
+    integrate or initialize celery in flask app
+    :param celery: celery app instance
+    :param app: flask app instance
+    :return: celery configurations with flask app context
+    """
+
     celery.conf.update(app.config)
     celery.config_from_object(CeleryConfig)
     TaskBase = celery.Task

@@ -5,8 +5,8 @@ from pinterest.models import Tags, User, Board, Pin, BlockUser
 from pinterest import db
 from pinterest.admin.utils import block_user_list
 from pinterest.admin.form import UpdateTagForm, BlockUserMsg
-from pinterest.msg import admin_access_msg, user_not_exist_msg, admin_update_tag, admin_delete_tag, \
-    admin_tag_not_exist, admin_block_msg, admin_unblock_msg
+from pinterest.msg import ADMIN_ACCESS_MSG, USER_NOT_EXIST_MSG, ADMIN_UPDATE_TAG_MSG,ADMIN_NEW_TAG_MSG ,ADMIN_DELETE_TAG_MSG, \
+    ADMIN_TAG_NOT_EXIST_MSG, ADMIN_BLOCK_MSG, ADMIN_UNBLOCK_MSG
 
 admin = Blueprint('admin', __name__)
 
@@ -28,14 +28,14 @@ def admin_page():
         block_list = block_user_list(blocks)
         return render_template('admin.html', tags=tags, form=form, users=users, block_list=block_list)
     else:
-        flash(admin_access_msg, 'warning')
+        flash(ADMIN_ACCESS_MSG, 'warning')
         return redirect(url_for('main.home_page'))
 
 
 @admin.route("/admin/tags/new", methods=['POST', 'GET'])
 @login_required
 def admin_new_tag():
-    """create new pin.
+    """create new pin tag.
     :return: admin home page
     """
 
@@ -43,20 +43,18 @@ def admin_new_tag():
     if id == 1:
         form = UpdateTagForm()
         if form.validate_on_submit():
-            tag = Tags.query.filter_by(name=form.name.data).first()
-            if tag:
+            if tag := Tags.query.filter_by(name=form.name.data).first():
                 flash('Tag is already exist...!!!', 'warning')
-                return redirect(url_for('admin.admin_page'))
             else:
                 new_tag = Tags(name=form.name.data)
                 db.session.add(new_tag)
                 db.session.commit()
 
-                flash('Tag has been created...!!!', 'success')
-                return redirect(url_for('admin.admin_page'))
+                flash(ADMIN_NEW_TAG_MSG, 'success')
+            return redirect(url_for('admin.admin_page'))
         return render_template('admin_new_tag.html', form=form)
     else:
-        flash(admin_access_msg, 'warning')
+        flash(ADMIN_ACCESS_MSG, 'warning')
         return redirect(url_for('main.home_page'))
 
 
@@ -76,14 +74,14 @@ def admin_tag_update(tag_id):
             if form.validate_on_submit():
                 tag.name = form.name.data
                 db.session.commit()
-                flash(admin_update_tag, 'success')
+                flash(ADMIN_UPDATE_TAG_MSG, 'success')
                 return redirect(url_for('admin.admin_page'))
             return render_template('admin_update_tag.html', form=form, tag=tag)
         else:
-            flash(admin_tag_not_exist, 'warning')
+            flash(ADMIN_TAG_NOT_EXIST_MSG, 'warning')
             return redirect(url_for('admin.admin_page'))
     else:
-        flash(admin_access_msg, 'warning')
+        flash(ADMIN_ACCESS_MSG, 'warning')
         return redirect(url_for('main.home_page'))
 
 
@@ -101,13 +99,12 @@ def admin_tag_delete(tag_id):
         if tag is not None:
             tag.delete()
             db.session.commit()
-            flash(admin_delete_tag, 'success')
-            return redirect(url_for('admin.admin_page'))
+            flash(ADMIN_DELETE_TAG_MSG, 'success')
         else:
             flash(admin_tag_not_exist, 'warning')
-            return redirect(url_for('admin.admin_page'))
+        return redirect(url_for('admin.admin_page'))
     else:
-        flash(admin_access_msg, 'warning')
+        flash(ADMIN_TAG_NOT_EXIST_MSG, 'warning')
         return redirect(url_for('main.home_page'))
 
 
@@ -126,7 +123,7 @@ def admin_user_details(user_id):
             pins = Pin.query.filter_by(user_id=user_id).all()
             return render_template('admin_user_page.html', boards=boards, pins=pins, user=user, form=form)
         else:
-            flash(user_not_exist_msg, 'warning')
+            flash(USER_NOT_EXIST_MSG, 'warning')
             return redirect(url_for('admin.admin_page'))
     else:
         flash(admin_access_msg, 'warning')
@@ -146,23 +143,22 @@ def admin_block_user(user_id):
 
             form = SearchForm()
             block_msg = BlockUserMsg()
-            block_user = BlockUser.query.filter_by(user_id=user_id).first()
-            if block_user:
+            if block_user := BlockUser.query.filter_by(user_id=user_id).first():
                 db.session.delete(block_user)
                 db.session.commit()
-                flash(admin_unblock_msg, 'success')
+                flash(ADMIN_UNBLOCK_MSG, 'success')
                 return redirect(url_for('admin.admin_page'))
             else:
                 if block_msg.validate_on_submit():
                     block_user = BlockUser(user_id=user_id, reason=block_msg.reason.data)
                     db.session.add(block_user)
                     db.session.commit()
-                    flash(admin_block_msg, 'success')
+                    flash(ADMIN_BLOCK_MSG, 'success')
                     return redirect(url_for('admin.admin_page'))
             return render_template('admin_block_user.html', user=user, form=form, block_msg=block_msg)
 
         else:
-            flash(user_not_exist_msg, 'warning')
+            flash(USER_NOT_EXIST_MSG, 'warning')
             return redirect(url_for('admin.admin_page'))
     else:
         flash(admin_access_msg, 'warning')
